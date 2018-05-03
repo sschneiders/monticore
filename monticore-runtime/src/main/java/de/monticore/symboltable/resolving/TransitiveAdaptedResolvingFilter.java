@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable.resolving;
 
@@ -31,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * TODO: Write me!
  *
  * @author Pedram Mir Seyed Nazari
  *
@@ -46,43 +28,6 @@ public abstract class TransitiveAdaptedResolvingFilter<S extends Symbol>
    */
   public TransitiveAdaptedResolvingFilter(SymbolKind sourceKind, Class<S> targetSymbolClass, SymbolKind targetKind) {
     super(sourceKind, targetSymbolClass, targetKind);
-  }
-
-  @Override
-  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String symbolName, List<Symbol> symbols) {
-    // This checks prevents circular dependencies in adapted resolving filters, e.g.,
-    // A -> B (i.e., A is resolved and adapted to B) and B -> A would lead to a circular dependency:
-    // A -> B -> A -> B -> A -> ...
-    if (resolvingInfo.isTargetKindHandled(getTargetKind())) {
-      return Optional.empty();
-    }
-
-    // Prevents circular dependencies. Note that the handled target kind is removed at the end of
-    // this method.
-    resolvingInfo.addHandledTargetKind(getTargetKind());
-
-    final Set<Symbol> resolvedSymbols = new LinkedHashSet<>();
-
-    final Collection<ResolvingFilter<? extends Symbol>> filtersForTargetKind = ResolvingFilter.
-        getFiltersForTargetKind(resolvingInfo.getResolvingFilters(), getSourceKind());
-
-
-
-    for (ResolvingFilter<? extends Symbol> resolvingFilter : filtersForTargetKind) {
-
-      Optional<? extends Symbol> optSymbol = resolvingFilter.filter(resolvingInfo, symbolName, symbols);
-
-      // NOTE: Remove this whole if-statement, if adaptors should be created eager.
-      if (optSymbol.isPresent()) {
-        resolvedSymbols.add(translate(optSymbol.get()));
-      }
-    }
-
-    // Removes the handled target kind. This is important, since other resolving
-    // filters may handle this kind
-    resolvingInfo.removeTargetKind(getTargetKind());
-
-    return ResolvingFilter.getResolvedOrThrowException(resolvedSymbols);
   }
 
   @Override
@@ -123,7 +68,7 @@ public abstract class TransitiveAdaptedResolvingFilter<S extends Symbol>
   }
 
   @Override
-  public Collection<Symbol> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols) {
+  public Collection<Symbol> filter(ResolvingInfo resolvingInfo, Collection<Symbol> symbols) {
     // TODO PN override implementation
     return super.filter(resolvingInfo, symbols);
   }
@@ -138,6 +83,7 @@ public abstract class TransitiveAdaptedResolvingFilter<S extends Symbol>
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
+  
   @Override
   public String toString() {
     return CommonAdaptedResolvingFilter.class.getSimpleName() + " [" + getSourceKind().getName() + " -> " +

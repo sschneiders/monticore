@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable;
 
@@ -145,20 +128,7 @@ public class SymbolTableTest {
     
     PropertySymbol globalVariable1 = new PropertySymbol("var1", stringReference);
     topScope.add(globalVariable1);
-    
 
-    assertSame(method, topScope.resolve(new SymbolNameAndKindPredicate("m", ActionSymbol.KIND)).get());
-    assertSame(globalVariable1, topScope.resolve(new SymbolNameAndKindPredicate("var1", PropertySymbol.KIND)).get());
-
-    // no variable with name 'm' defined 
-    assertFalse(topScope.resolve(new SymbolNameAndKindPredicate("m", PropertySymbol.KIND)).isPresent());
-    
-    PropertyPredicate varPredicate = new PropertyPredicate(new PropertySymbol("var1", stringReference));
-    
-    // Variable 'var1' in method is not returned, because is does not fulfill the predicate (wrong type)
-    assertSame(globalVariable1, method.getSpannedScope().resolve(varPredicate).get());
-
-    
     assertSame(variable, method.getSpannedScope().resolve("var1", PropertySymbol.KIND).get());
     
   }

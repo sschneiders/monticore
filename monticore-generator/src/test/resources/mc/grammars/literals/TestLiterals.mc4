@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.grammars.literals;
 
@@ -33,13 +16,13 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
   /*========================================================================*/
   /*======================= AST DEFINITIONS ================================*/
   /*========================================================================*/
-  ast BooleanLiteral =
+  astrule BooleanLiteral =
     method public boolean getValue() {
       return this.source == ASTConstantsTestLiterals.TRUE;
     }
   ;
 
-  ast CharLiteral = 
+  astrule CharLiteral = 
     method public char getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeChar(getSource());
@@ -50,7 +33,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast StringLiteral = 
+  astrule StringLiteral = 
     method public String getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeString(getSource());
@@ -61,7 +44,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast IntLiteral = 
+  astrule IntLiteral = 
     method public int getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeInt(getSource());
@@ -72,7 +55,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast SignedIntLiteral = 
+  astrule SignedIntLiteral = 
     method public int getValue() {
       if (negative) {
         return -super.getValue();
@@ -81,7 +64,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast LongLiteral = 
+  astrule LongLiteral = 
     method public long getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeLong(getSource());
@@ -92,7 +75,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast SignedLongLiteral = 
+  astrule SignedLongLiteral = 
     method public long getValue() {
       if (negative) {
         return -super.getValue();
@@ -101,7 +84,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast FloatLiteral = 
+  astrule FloatLiteral = 
     method public float getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeFloat(getSource());
@@ -112,7 +95,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast SignedFloatLiteral = 
+  astrule SignedFloatLiteral = 
     method public float getValue() {
       if (negative) {
         return -super.getValue();
@@ -121,7 +104,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast DoubleLiteral = 
+  astrule DoubleLiteral = 
     method public double getValue() {
       try {
         return de.monticore.literals.LiteralsHelper.getInstance().decodeDouble(getSource());
@@ -132,7 +115,7 @@ grammar TestLiterals extends mc.grammars.lexicals.TestLexicals {
     }
   ;
 
-  ast SignedDoubleLiteral = 
+  astrule SignedDoubleLiteral = 
     method public double getValue() {
       if (negative) {
         return -super.getValue();

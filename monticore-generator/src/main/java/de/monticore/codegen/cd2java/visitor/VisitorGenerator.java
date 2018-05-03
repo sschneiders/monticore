@@ -1,28 +1,11 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.visitor;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.List;
 
 import de.monticore.codegen.cd2java.ast.AstGeneratorHelper;
 import de.monticore.generating.GeneratorEngine;
@@ -51,7 +34,8 @@ public class VisitorGenerator {
   public static void generate(GlobalExtensionManagement glex, GlobalScope globalScope,
       ASTCDCompilationUnit astClassDiagram,
       File outputDirectory) {
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory);
     VisitorGeneratorHelper visitorHelper = new VisitorGeneratorHelper(astClassDiagram, globalScope);
     glex.setGlobalValue("visitorHelper", visitorHelper);
     setup.setGlex(glex);
@@ -85,14 +69,14 @@ public class VisitorGenerator {
         astClassDiagram.getCDDefinition(), astPackage, cd);
     Log.trace(LOGGER_NAME, "Generated basic parent aware visitor for the diagram: " + diagramName);
     
-    Collection<CDSymbol> allCds = visitorHelper.getAllCds(cd);
+    List<CDSymbol> allCds = visitorHelper.getAllCds(cd);
     
     // common delegator visitor
     final Path commonDelegatorVisitorFilePath = Paths.get(path,
-        "Common" + visitorHelper.getDelegatorVisitorType() + ".java");
-    generator.generate("visitor.CommonDelegatorVisitor", commonDelegatorVisitorFilePath,
+        visitorHelper.getDelegatorVisitorType() + ".java");
+    generator.generate("visitor.DelegatorVisitor", commonDelegatorVisitorFilePath,
         astClassDiagram, astClassDiagram.getCDDefinition(), astPackage, allCds);
-    Log.trace(LOGGER_NAME, "Generated common delegator visitor for the diagram: " + diagramName);
+    Log.trace(LOGGER_NAME, "Generated delegator visitor for the diagram: " + diagramName);
   }
   
   private VisitorGenerator() {

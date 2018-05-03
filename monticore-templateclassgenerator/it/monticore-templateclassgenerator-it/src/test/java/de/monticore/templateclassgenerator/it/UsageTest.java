@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.templateclassgenerator.it;
 
 import static org.junit.Assert.assertNotNull;
@@ -51,12 +34,6 @@ import de.monticore.symboltable.Scope;
 import de.monticore.templateclassgenerator.EmptyNode;
 import de.monticore.templateclassgenerator.util.GeneratorInterface;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- * @since TODO: add version number
- */
 public class UsageTest extends AbstractSymtabTest {
   private static Path outputDirectory = Paths.get("target/generated-sources/templateClasses/");
   
@@ -72,7 +49,8 @@ public class UsageTest extends AbstractSymtabTest {
    */
   @Test
   public void testJavaClassTemplateClass() {
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory.toFile());
+    final GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory.toFile());
     GeneratorConfig.init(setup);
     String classname = "Test1";
     List<Attribute> attributes = new ArrayList<>();
@@ -95,7 +73,8 @@ public class UsageTest extends AbstractSymtabTest {
    */
   @Test
   public void testReturnMethod() throws RecognitionException, IOException {
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory.toFile());
+    final GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory.toFile());
     ExtendedGeneratorEngine generator = new ExtendedGeneratorEngine(setup);
     List<Attribute> attributes = new ArrayList<>();
     attributes.add(new Attribute("Integer", "i"));
@@ -146,7 +125,8 @@ public class UsageTest extends AbstractSymtabTest {
     String s = "first";
     String s2 = "second";
     String s3 = "third";
-    GeneratorSetup setup = new GeneratorSetup(outputDirectory.toFile());
+    GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory.toFile());
     GeneratorConfig.init(setup);
     ExtendedGeneratorEngine ge = GeneratorConfig.getGeneratorEngine();
     ge.generate("templates/b/Constructor.ftl", s, s2, s3);
@@ -159,7 +139,8 @@ public class UsageTest extends AbstractSymtabTest {
   public void testDynamicTypeCheck2() {
     String s = "first";
     String s2 = "second";
-    GeneratorSetup setup = new GeneratorSetup(outputDirectory.toFile());
+    GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory.toFile());
     GeneratorConfig.init(setup);
     ExtendedGeneratorEngine ge = GeneratorConfig.getGeneratorEngine();
     ge.generate("templates/b/Constructor.ftl", s, s2);

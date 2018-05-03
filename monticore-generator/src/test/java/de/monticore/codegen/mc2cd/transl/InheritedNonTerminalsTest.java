@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -43,7 +26,7 @@ public class InheritedNonTerminalsTest {
     Optional<ASTCDCompilationUnit> cdCompilationUnit = TestHelper.parseAndTransform(Paths
         .get("src/test/resources/mc2cdtransformation/InheritedNonTerminalsGrammar.mc4"));
     assertTrue(cdCompilationUnit.isPresent());
-    List<ASTCDClass> classList = cdCompilationUnit.get().getCDDefinition().getCDClasses();
+    List<ASTCDClass> classList = cdCompilationUnit.get().getCDDefinition().getCDClassList();
     astA = classList.get(0);
     astB = classList.get(1);
   }
@@ -56,7 +39,7 @@ public class InheritedNonTerminalsTest {
   
   @Test
   public void testSuperGrammarResolving() {
-    String name = typeToString(astA.getCDAttributes().get(0).getType());
+    String name = typeToString(astA.getCDAttributeList().get(0).getType());
     assertEquals("mc2cdtransformation.Supergrammar.ASTX", name);
   }
 }

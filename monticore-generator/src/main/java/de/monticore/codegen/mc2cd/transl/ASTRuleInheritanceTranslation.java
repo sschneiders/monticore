@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -30,7 +13,6 @@ import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
 import de.monticore.utils.Link;
 
-import java.util.function.UnaryOperator;
 
 /**
  * Checks if the source astrules were extending or implementing other rules
@@ -64,28 +46,28 @@ public class ASTRuleInheritanceTranslation implements
   private void translateInterfaceProd(ASTASTRule rule, ASTCDInterface cdInterface,
       ASTMCGrammar astGrammar) {
     // translates "astextends"
-    for (ASTGenericType superInterface : rule.getASTSuperClass()) {
+    for (ASTGenericType superInterface : rule.getASTSuperClassList()) {
       String qualifiedSuperInterface = TransformationHelper
           .getQualifiedTypeNameAndMarkIfExternal(superInterface, astGrammar, cdInterface);
 
-      cdInterface.getInterfaces().add(
+      cdInterface.getInterfaceList().add(
           TransformationHelper.createSimpleReference(qualifiedSuperInterface));
     }
   }
 
   private void translateClassProd(ASTASTRule rule, ASTCDClass cdClass, ASTMCGrammar astGrammar) {
     // translates "astextends"
-    for (ASTGenericType superClass : rule.getASTSuperClass()) {
+    for (ASTGenericType superClass : rule.getASTSuperClassList()) {
       String qualifiedSuperClass = TransformationHelper
           .getQualifiedTypeNameAndMarkIfExternal(superClass, astGrammar, cdClass);
       cdClass.setSuperclass(TransformationHelper.createSimpleReference(qualifiedSuperClass));
     }
 
     // translates "astimplements"
-    for (ASTGenericType superInterface : rule.getASTSuperInterface()) {
+    for (ASTGenericType superInterface : rule.getASTSuperInterfaceList()) {
       String qualifiedSuperInterface = TransformationHelper
           .getQualifiedTypeNameAndMarkIfExternal(superInterface, astGrammar, cdClass);
-      cdClass.getInterfaces()
+      cdClass.getInterfaceList()
           .add(TransformationHelper.createSimpleReference(qualifiedSuperInterface));
     }
   }

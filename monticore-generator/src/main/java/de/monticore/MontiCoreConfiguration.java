@@ -1,26 +1,11 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +28,6 @@ import de.se_rwth.commons.logging.Log;
  * derived from (1) its command line arguments, and (2) system properties (not
  * implemented yet).
  *
- * @author (last commit) $Author$
  */
 public final class MontiCoreConfiguration implements Configuration {
 
@@ -61,8 +45,15 @@ public final class MontiCoreConfiguration implements Configuration {
 
   public static final String CONFIGURATION_PROPERTY = "_configuration";
 
-  public static final String DEFAULT_OUTPUT_DIRECTORY = "out";
+  public static final String DEFAULT_OUTPUT_PATH = "out";
+  
+  public static final String DEFAULT_HANDCODED_JAVA_PATH = "java";
 
+  public static final String DEFAULT_HANDCODED_TEMPLATE_PATH = "resource";
+
+  public static final String DEFAULT_GRAMMAR_PATH = "grammars";
+
+  
   /**
    * The names of the specific MontiCore options used in this configuration.
    */
@@ -70,8 +61,8 @@ public final class MontiCoreConfiguration implements Configuration {
 
     GRAMMARS("grammars"), GRAMMARS_SHORT("g"), MODELPATH("modelPath"), MODELPATH_SHORT("mp"),
     OUT("out"), OUT_SHORT("o"), HANDCODEDPATH("handcodedPath"), HANDCODEDPATH_SHORT("hcp"),
-    TEMPLATEPATH("templatePath"), TEMPLATEPATH_SHORT("fp"), OUTTOMODELPATH("addOutToModelpath"),
-    OUTTOMODELPATH_SHORT("otm"), FORCE("force"), FORCE_SHORT("f");
+    TEMPLATEPATH("templatePath"), TEMPLATEPATH_SHORT("fp"),
+    FORCE("force"), FORCE_SHORT("f");
 
     String name;
 
@@ -261,6 +252,16 @@ public final class MontiCoreConfiguration implements Configuration {
     return hasProperty(key.toString());
   }
 
+  private boolean checkPath(List<String> grammars) {
+    for (String g: grammars) {
+      Path p = Paths.get(g);
+      if (!Files.exists(p)) {
+        Log.error("0xA1019 The requested path " + p.toString() + " does not exist.");
+        return false;
+      }
+    }
+    return true;
+  }
   /**
    * Getter for the {@link IterablePath} consisting of grammar files stored in
    * this configuration.
@@ -269,11 +270,11 @@ public final class MontiCoreConfiguration implements Configuration {
    */
   public IterablePath getGrammars() {
     Optional<List<String>> grammars = getAsStrings(Options.GRAMMARS);
-    if (grammars.isPresent()) {
+    if (grammars.isPresent() && checkPath(grammars.get())) {
       return IterablePath.from(toFileList(grammars.get()), MC4_EXTENSIONS);
     }
     grammars = getAsStrings(Options.GRAMMARS_SHORT);
-    if (grammars.isPresent()) {
+    if (grammars.isPresent() && checkPath(grammars.get())) {
       return IterablePath.from(toFileList(grammars.get()), MC4_EXTENSIONS);
     }
     // no default; must specify grammar files/directories to process
@@ -318,18 +319,12 @@ public final class MontiCoreConfiguration implements Configuration {
     if (modelPath.isPresent()) {
       return modelPath.get();
     }
-    // default model path is empty (but contains the output directory by
-    // default)
-    return getAddOutToModelPath() ?
-        new ModelPath(getOut().toPath().toAbsolutePath()) :
-        new ModelPath();
+    // default model path is empty 
+    return new ModelPath();
   }
 
   private ModelPath convertEntryNamesToModelPath(List<String> modelPathEntryNames) {
     List<File> modelPathFiles = toFileList(modelPathEntryNames);
-    if (getAddOutToModelPath()) {
-      modelPathFiles.add(getOut());
-    }
     List<Path> modelPathEntries = modelPathFiles.stream()
         .map(File::toPath)
         .map(Path::toAbsolutePath)
@@ -348,23 +343,14 @@ public final class MontiCoreConfiguration implements Configuration {
     Optional<List<String>> modelPath = getAsStrings(Options.MODELPATH);
     if (modelPath.isPresent()) {
       List<String> result = new ArrayList<>(modelPath.get());
-      if (getAddOutToModelPath()) {
-        result.add(getOut().toString());
-      }
       return result;
     }
     modelPath = getAsStrings(Options.MODELPATH_SHORT);
     if (modelPath.isPresent()) {
       List<String> result = new ArrayList<>(modelPath.get());
-      if (getAddOutToModelPath()) {
-        result.add(getOut().toString());
-      }
       return result;
     }
     // default model path is empty
-    if (getAddOutToModelPath()) {
-      return Collections.singletonList(getOut().toString());
-    }
     return Collections.emptyList();
   }
 
@@ -384,7 +370,7 @@ public final class MontiCoreConfiguration implements Configuration {
       return new File(out.get());
     }
     // fallback default is "out"
-    return new File(DEFAULT_OUTPUT_DIRECTORY);
+    return new File(DEFAULT_OUTPUT_PATH);
   }
 
   /**
@@ -401,8 +387,12 @@ public final class MontiCoreConfiguration implements Configuration {
     if (handcodedPath.isPresent()) {
       return IterablePath.from(toFileList(handcodedPath.get()), HWC_EXTENSIONS);
     }
-    // default handcoded path is empty
-    return IterablePath.empty();
+    // default handcoded path is "java"
+    File defaultFile = new File(DEFAULT_HANDCODED_JAVA_PATH);
+    if (!defaultFile.exists()) {
+      return IterablePath.empty();
+    }
+    return IterablePath.from(new File(DEFAULT_HANDCODED_JAVA_PATH), HWC_EXTENSIONS);
   }
 
   /**
@@ -440,8 +430,12 @@ public final class MontiCoreConfiguration implements Configuration {
     if (templatePath.isPresent()) {
       return IterablePath.from(toFileList(templatePath.get()), FTL_EXTENSIONS);
     }
-    // default template path is empty
-    return IterablePath.empty();
+    // default handcoded template path is "resource"
+    File defaultFile = new File(DEFAULT_HANDCODED_TEMPLATE_PATH);
+    if (!defaultFile.exists()) {
+      return IterablePath.empty();
+    }
+    return IterablePath.from(new File(DEFAULT_HANDCODED_TEMPLATE_PATH), FTL_EXTENSIONS);
   }
 
   /**
@@ -463,23 +457,6 @@ public final class MontiCoreConfiguration implements Configuration {
     }
     // default template path is empty
     return Collections.emptyList();
-  }
-
-  /**
-   * Getter for the add out to model path argument; defaults to true.
-   *
-   * @return
-   */
-  public boolean getAddOutToModelPath() {
-    Optional<Boolean> addOutToModelPath = getAsBoolean(Options.OUTTOMODELPATH);
-    if (addOutToModelPath.isPresent()) {
-      return addOutToModelPath.get();
-    }
-    addOutToModelPath = getAsBoolean(Options.OUTTOMODELPATH_SHORT);
-    if (addOutToModelPath.isPresent()) {
-      return addOutToModelPath.get();
-    }
-    return true;
   }
 
   /**

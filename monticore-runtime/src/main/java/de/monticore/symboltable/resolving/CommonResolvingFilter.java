@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable.resolving;
 
@@ -41,24 +24,8 @@ public class CommonResolvingFilter<S extends Symbol> implements ResolvingFilter<
 
   private final SymbolKind targetKind;
 
-  /**
-   * @deprecated use {@link #create(SymbolKind)} instead
-   */
-  @Deprecated
-  public static <S extends Symbol> ResolvingFilter<S> create(Class<S> symbolClass, SymbolKind symbolKind) {
-    return new CommonResolvingFilter<>(symbolClass, symbolKind);
-  }
-
   public static ResolvingFilter create(SymbolKind symbolKind) {
     return new CommonResolvingFilter<>(symbolKind);
-  }
-
-  /**
-   * @deprecated use {@link #CommonResolvingFilter(SymbolKind)} instead
-   */
-  @Deprecated
-  public CommonResolvingFilter(Class<S> symbolClass, SymbolKind targetKind) {
-    this(targetKind);
   }
 
   public CommonResolvingFilter(SymbolKind targetKind) {
@@ -95,37 +62,6 @@ public class CommonResolvingFilter<S extends Symbol> implements ResolvingFilter<
     }
 
     return foundSymbols;
-  }
-
-  @Override
-  @Deprecated
-  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, final List<Symbol> symbols) {
-    final Set<Symbol> resolvedSymbols = new LinkedHashSet<>();
-
-    for (Symbol symbol : symbols) {
-      if (symbol.isKindOf(targetKind)) {
-
-        if (symbol.getName().equals(name) || symbol.getFullName().equals(name)) {
-          resolvedSymbols.add(symbol);
-        }
-      }
-    }
-
-    return ResolvingFilter.getResolvedOrThrowException(resolvedSymbols);
-  }
-
-  @Override
-  @Deprecated
-  public Collection<Symbol> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols) {
-      final Collection<Symbol> foundSymbols = new LinkedHashSet<>();
-
-      for (Symbol symbol : symbols) {
-        if (symbol.isKindOf(targetKind)) {
-          foundSymbols.add(symbol);
-        }
-      }
-
-      return foundSymbols;
   }
 
   @Override

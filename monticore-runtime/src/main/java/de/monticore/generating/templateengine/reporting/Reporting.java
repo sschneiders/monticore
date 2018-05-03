@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.generating.templateengine.reporting;
 
@@ -39,7 +22,6 @@ import de.se_rwth.commons.logging.Slf4jLog;
  * Facade for all reporting activities. Invoking a report method causes all
  * AReporter implementing this method to execute it.
  *
- * @author (last commit) $Author$
  */
 public class Reporting extends Slf4jLog {
 
@@ -149,7 +131,6 @@ public class Reporting extends Slf4jLog {
     // causing a crash, i.e., we need to catch exceptions
     if (wantsToFailQuick) {
       try {
-        // TODO TGR check if null can be provided in this case
         flush(null);
       }
       catch (Exception e) {
@@ -836,7 +817,7 @@ public class Reporting extends Slf4jLog {
    * Invoking this method causes all AReporter to close their files and all
    * OneTimeReporter to write their content into files.
    *
-   * @param ast the root node of the reported ast
+   * @param ast the root node of the reported ast, may be null on error
    */
   public static void flush(ASTNode ast) {
     if (isEnabled()) {

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.symboltable;
 
@@ -35,6 +18,8 @@ public class SymbolTableGeneratorBuilder {
 
   private SymbolReferenceGenerator symbolReferenceGenerator;
   private SymbolTableCreatorGenerator symbolTableCreatorGenerator;
+
+  private SymbolMillGenerator symbolMillGenerator;
 
   public SymbolTableGenerator build() {
     if (modelingLanguageGenerator == null) {
@@ -64,11 +49,14 @@ public class SymbolTableGeneratorBuilder {
     if ( symbolTableCreatorGenerator == null) {
       symbolTableCreatorGenerator = new CommonSymbolTableCreatorGenerator();
     }
+    if (symbolMillGenerator == null) {
+      symbolMillGenerator = new CommonSymbolMillGenerator();
+    }
 
     return new SymbolTableGenerator(modelingLanguageGenerator, modelLoaderGenerator,
         modelNameCalculatorGenerator, resolvingFilterGenerator, symbolGenerator,
         symbolKindGenerator, scopeSpanningSymbolGenerator, symbolReferenceGenerator,
-        symbolTableCreatorGenerator);
+        symbolTableCreatorGenerator, symbolMillGenerator);
   }
 
 
@@ -114,6 +102,11 @@ public class SymbolTableGeneratorBuilder {
 
   public SymbolTableGeneratorBuilder symbolTableCreatorGenerator(SymbolTableCreatorGenerator symbolTableCreatorGenerator) {
     this.symbolTableCreatorGenerator = symbolTableCreatorGenerator;
+    return this;
+  }
+
+  public SymbolTableGeneratorBuilder symbolMillGenerator(SymbolMillGenerator symbolMillGenerator) {
+    this.symbolMillGenerator = symbolMillGenerator;
     return this;
   }
 

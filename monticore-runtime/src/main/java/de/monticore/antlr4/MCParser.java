@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.antlr4;
 
@@ -34,9 +17,9 @@ import de.se_rwth.commons.SourcePosition;
 public abstract class MCParser extends Parser {
   
   protected List<Comment> comments = new ArrayList<Comment>();
-    
+  
   protected ASTNode activeastnode;
-    
+  
   public MCParser(TokenStream input) {
     super(input);
     removeErrorListeners();
@@ -61,7 +44,8 @@ public abstract class MCParser extends Parser {
     if (token == null || token.getText() == null) {
       return SourcePosition.getDefaultSourcePosition();
     }
-    return computeEndPosition(new SourcePosition(token.getLine(), token.getCharPositionInLine()), token.getText());
+    return computeEndPosition(new SourcePosition(token.getLine(), token.getCharPositionInLine()),
+        token.getText());
   }
   
   public de.se_rwth.commons.SourcePosition computeStartPosition(Token token) {
@@ -73,7 +57,7 @@ public abstract class MCParser extends Parser {
     return new de.se_rwth.commons.SourcePosition(line, column, getFilename());
   }
   
-  public SourcePosition computeEndPosition(SourcePosition start, String text) {   
+  public SourcePosition computeEndPosition(SourcePosition start, String text) {
     int line = start.getLine();
     int column = start.getColumn();
     if (text == null) {
@@ -126,16 +110,17 @@ public abstract class MCParser extends Parser {
   }
   
   public void setActiveASTNode(ASTNode n) {
-   
+    
     ListIterator<Comment> listIterator = comments.listIterator();
     while (listIterator.hasNext()) {
-      Comment c = listIterator.next(); 
-      if (this.activeastnode != null && this.activeastnode.get_SourcePositionEnd().getLine() == c.get_SourcePositionStart().getLine()) {
-        this.activeastnode.get_PostComments().add(c);
+      Comment c = listIterator.next();
+      if (this.activeastnode != null && this.activeastnode.get_SourcePositionEnd().getLine() == c
+          .get_SourcePositionStart().getLine()) {
+        this.activeastnode.get_PostCommentList().add(c);
         listIterator.remove();
       }
       else if (c.get_SourcePositionStart().compareTo(n.get_SourcePositionStart()) < 0) {
-        n.get_PreComments().add(c);
+        n.get_PreCommentList().add(c);
         listIterator.remove();
       }
     }
@@ -143,4 +128,12 @@ public abstract class MCParser extends Parser {
     this.activeastnode = n;
   }
   
+  public boolean noSpace() {
+    org.antlr.v4.runtime.Token t1 = _input.LT(-1);
+    org.antlr.v4.runtime.Token t2 = _input.LT(-2);
+    // token are on same line
+    // and columns differ exactly length of earlier token (t2)
+    return ((t1.getLine() == t2.getLine()) &&
+        (t1.getCharPositionInLine() == t2.getCharPositionInLine() + t2.getText().length()));
+  }
 }

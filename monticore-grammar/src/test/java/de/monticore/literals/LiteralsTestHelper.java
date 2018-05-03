@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.literals;
 
@@ -25,7 +8,7 @@ import java.util.Optional;
 
 import de.monticore.literals.literals._ast.ASTLiteral;
 import de.monticore.literals.literals._ast.ASTSignedLiteral;
-import de.monticore.literals.literals._parser.LiteralsParser;
+import de.monticore.literals.testliterals._parser.TestLiteralsParser;
 import junit.framework.TestCase;
 
 /**
@@ -66,7 +49,7 @@ public class LiteralsTestHelper {
    * @throws IOException
    */
   public ASTLiteral parseLiteral(String input) throws IOException {
-    LiteralsParser parser = new LiteralsParser();
+    TestLiteralsParser parser = new TestLiteralsParser();
     Optional<ASTLiteral> res = parser.parseLiteral(new StringReader(input));
     TestCase.assertTrue(res.isPresent());
     return res.get();
@@ -81,7 +64,7 @@ public class LiteralsTestHelper {
    */
   public ASTSignedLiteral parseSignedLiteral(String input)
       throws IOException {
-    LiteralsParser parser = new LiteralsParser();
+    TestLiteralsParser parser = new TestLiteralsParser();
     Optional<ASTSignedLiteral> res = parser.parseSignedLiteral(new StringReader(input));
     TestCase.assertTrue(res.isPresent());
     return res.get();

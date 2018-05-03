@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.generating.templateengine;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import de.monticore.generating.GeneratorSetup;
 import de.se_rwth.commons.logging.Log;
 
 /**
@@ -52,8 +36,8 @@ public class ExtendedTemplateController extends TemplateController {
    * @param tcConfig
    * @param templatename
    */
-  public ExtendedTemplateController(TemplateControllerConfiguration tcConfig, String templatename) {
-    super(tcConfig, templatename);
+  public ExtendedTemplateController(GeneratorSetup setup, String templatename) {
+    super(setup, templatename);
   }
   
   /**
@@ -69,7 +53,6 @@ public class ExtendedTemplateController extends TemplateController {
     checkArgument(!parametrized,
         "0xA5299 Template '" + getTemplatename() + "': tried to invoke params() twice");
     List<Object> arguments = getArguments();
-    List<String> names = getSignature();
     // throws error when argument size != param size
     checkArgument(params.length == arguments.size(),
         "0xA5296 Template '" + getTemplatename() + "': Parameter size (#" +
@@ -110,19 +93,20 @@ public class ExtendedTemplateController extends TemplateController {
       }
       
       // Case 1: No Signature -> we have to signature the paramnames
-      if (names.isEmpty()) {
+//      if (names.isEmpty()) {
         toSignature.add(paramName);
-      }
-      // Case 2: User wrote signature() additionally to params() -> we do not
-      // need to signature the parameter names, but compare them to the
-      // parameter names in the params() method.
-      else {
-        String argumentName = names.get(i);
-        checkArgument(argumentName.equals(paramName),
-            "0xA5300 Template '" + getTemplatename() + "': Parameter name (" +
-                paramName +
-                ") and name of parameter in signature (" + argumentName + ") mismatch.");
-      }
+//      }
+      // TODO MB  signature?
+//      // Case 2: User wrote signature() additionally to params() -> we do not
+//      // need to signature the parameter names, but compare them to the
+//      // parameter names in the params() method.
+//      else {
+//        String argumentName = names.get(i);
+//        checkArgument(argumentName.equals(paramName),
+//            "0xA5300 Template '" + getTemplatename() + "': Parameter name (" +
+//                paramName +
+//                ") and name of parameter in signature (" + argumentName + ") mismatch.");
+//      }
     }
     
     if (!toSignature.isEmpty()) {

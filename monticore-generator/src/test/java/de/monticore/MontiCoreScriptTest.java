@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore;
 
@@ -30,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +23,7 @@ import com.google.common.collect.Sets;
 
 import de.monticore.codegen.GeneratorHelper;
 import de.monticore.codegen.cd2java.ast.AstAdditionalMethods;
+import de.monticore.codegen.mc2cd.TestHelper;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 import de.monticore.io.paths.IterablePath;
@@ -52,7 +37,7 @@ import de.se_rwth.commons.cli.CLIArguments;
 import de.se_rwth.commons.configuration.Configuration;
 import de.se_rwth.commons.configuration.ConfigurationPropertiesMapContributor;
 import de.se_rwth.commons.logging.Log;
-import de.se_rwth.commons.logging.Slf4jLog;
+import de.se_rwth.commons.logging.LogStub;
 
 /**
  * Test for the {@link MontiCoreScript} class.
@@ -89,7 +74,7 @@ public class MontiCoreScriptTest {
   
   @BeforeClass
   public static void setup() {
-    Slf4jLog.init();
+    LogStub.init();
     Log.enableFailQuick(false);
     for (AstAdditionalMethods additionalMethod : AstAdditionalMethods.class.getEnumConstants()) {
       additionalMethods.add(additionalMethod.name());
@@ -113,54 +98,67 @@ public class MontiCoreScriptTest {
     assertEquals("Statechart", grammar.getName());
   }
   
-  /** {@link MontiCoreScript#generateParser(ASTMCGrammar, String)} */
+  /** {@link MontiCoreScript#generateParser(GlobalExtensionManagement, ASTMCGrammar, GlobalScope, IterablePath, File)} */
   @Test
   public void testGenerateParser() {
     assertNotNull(grammar);
     MontiCoreScript mc = new MontiCoreScript();
-    GlobalScope symbolTable = mc.initSymbolTable(modelPath);
+    GlobalScope symbolTable = TestHelper.createGlobalScope(modelPath);
     mc.generateParser(glex, grammar, symbolTable, IterablePath.empty(), new File("target/generated-sources/monticore/testcode"));
   }
   
-  /** {@link MontiCoreScript#transformAstGrammarToAstCd(mc.grammar._ast.ASTCDCompilationUnit)} */
+  /** {@link MontiCoreScript#transformAstGrammarToAstCd(GlobalExtensionManagement, ASTMCGrammar, GlobalScope, IterablePath)} */
   @Test
-  public void testTransformAstGrammarToAstCd() {
+  public void testGetOrCreateCD() {
     MontiCoreScript mc = new MontiCoreScript();
-    GlobalScope symbolTable = mc.initSymbolTable(modelPath);
+    GlobalScope symbolTable = TestHelper.createGlobalScope(modelPath);
     mc.createSymbolsFromAST(symbolTable, grammar);
-    cdCompilationUnit = mc.transformAstGrammarToAstCd(
-        new GlobalExtensionManagement(), grammar, symbolTable, targetPath);
+    cdCompilationUnit = mc.getOrCreateCD(grammar,
+        new GlobalExtensionManagement(), symbolTable);
     assertNotNull(cdCompilationUnit);
     assertNotNull(cdCompilationUnit.getCDDefinition());
     assertEquals("Statechart", cdCompilationUnit.getCDDefinition().getName());
   }
   
-  /** {@link MontiCoreScript#decorateCd(GlobalExtensionManagement, ASTCDCompilationUnit)} */
+  /** {@link MontiCoreScript#transformAstGrammarToAstCd(GlobalExtensionManagement, ASTMCGrammar, GlobalScope, IterablePath)} */
+  @Test
+  public void testDeriveCD() {
+    MontiCoreScript mc = new MontiCoreScript();
+    GlobalScope symbolTable = TestHelper.createGlobalScope(modelPath);
+    mc.createSymbolsFromAST(symbolTable, grammar);
+    cdCompilationUnit = mc.deriveCD(grammar,
+        new GlobalExtensionManagement(), symbolTable);
+    assertNotNull(cdCompilationUnit);
+    assertNotNull(cdCompilationUnit.getCDDefinition());
+    assertEquals("Statechart", cdCompilationUnit.getCDDefinition().getName());
+  }
+  
+  /** {@link MontiCoreScript#decorateCd(GlobalExtensionManagement, ASTCDCompilationUnit, GlobalScope, IterablePath)}  */
   @Test
   public void testDecorateCd() {
     MontiCoreScript mc = new MontiCoreScript();
-    GlobalScope symbolTable = mc.initSymbolTable(modelPath);
+    GlobalScope symbolTable = TestHelper.createGlobalScope(modelPath);
     mc.createSymbolsFromAST(symbolTable, grammar);
-    cdCompilationUnit = mc.transformAstGrammarToAstCd(new GlobalExtensionManagement(),
-        grammar, symbolTable, targetPath);
+    cdCompilationUnit = mc.deriveCD(grammar, new GlobalExtensionManagement(),
+        symbolTable);
     assertNotNull(cdCompilationUnit);
     GeneratorHelper genHelper = new GeneratorHelper(cdCompilationUnit, symbolTable);
     assertEquals("de.monticore.statechart.statechart._ast", GeneratorHelper.getPackageName(
         genHelper.getPackageName(), GeneratorHelper.AST_PACKAGE_SUFFIX));
     assertNotNull(cdCompilationUnit.getCDDefinition());
     ASTCDDefinition cdDefinition = cdCompilationUnit.getCDDefinition();
-    assertEquals(8, cdDefinition.getCDClasses().size());
-    assertEquals(5, cdDefinition.getCDInterfaces().size());
+    assertEquals(8, cdDefinition.getCDClassList().size());
+    assertEquals(5, cdDefinition.getCDInterfaceList().size());
     
     mc.decorateCd(glex, cdCompilationUnit, symbolTable, targetPath);
     // Added Builder classes to the each not list class
-    assertEquals(18, cdDefinition.getCDClasses().size());
+    assertEquals(19, cdDefinition.getCDClassList().size());
     
     // Check if there are all additional methods defined in the given CD class
     List<String> methods = Lists.newArrayList();
-    for (ASTCDClass cdClass : cdDefinition.getCDClasses()) {
+    for (ASTCDClass cdClass : cdDefinition.getCDClassList()) {
       // All methods of CD class
-      for (ASTCDMethod method : cdClass.getCDMethods()) {
+      for (ASTCDMethod method : cdClass.getCDMethodList()) {
         methods.add(method.getName());
       }
       String withOrder = "WithOrder";
@@ -177,27 +175,73 @@ public class MontiCoreScriptTest {
     
   }
   
-  /** {@link MontiCoreScript#generate(GlobalExtensionManagement, ASTCDCompilationUnit, java.util.Map)} */
+  /** {@link MontiCoreScript#generate(GlobalExtensionManagement, GlobalScope, ASTCDCompilationUnit, File, IterablePath)} */
   @Test
   public void testGenerate() {
     MontiCoreScript mc = new MontiCoreScript();
-    GlobalScope symbolTable = mc.initSymbolTable(modelPath);
+    GlobalScope symbolTable = TestHelper.createGlobalScope(modelPath);
     mc.createSymbolsFromAST(symbolTable, grammar);
-    cdCompilationUnit = mc.transformAstGrammarToAstCd(new GlobalExtensionManagement(),
-        grammar, symbolTable, targetPath);
-    mc.storeInCdFile(cdCompilationUnit, outputPath);
+    cdCompilationUnit = mc.deriveCD(grammar, new GlobalExtensionManagement(),
+        symbolTable);
     mc.generate(glex, symbolTable, cdCompilationUnit, outputPath, templatePath);
   }
   
-  /** {@link MontiCoreScript#run(MontiCoreConfiguration)} */
+  /** {@link MontiCoreScript#run(Configuration)} */
   @Test
-  public void testDefaultScript() {    
+  public void testDefaultScriptSimpleArgs() {
+    Log.getFindings().clear();
+    testDefaultScript(simpleArgs);
+    Assert.assertTrue(Log.getFindings().isEmpty());
+  }
+  
+  static String[] subsubgrammarArgs = { "-grammars",
+      "src/test/resources/de/monticore/inherited/subsub/Subsubgrammar.mc4",
+      "-modelPath", modelPathPath.toAbsolutePath().toString(),
+      "-out", outputPath.getAbsolutePath(), "-targetPath", "src/test/resources", "-force" };
+  
+  /** {@link MontiCoreScript#run(Configuration)} */
+  @Test
+  public void testDefaultScriptSubsubgrammarArgs() {
+    Log.getFindings().clear();
+    testDefaultScript(subsubgrammarArgs);
+    Assert.assertTrue(Log.getFindings().isEmpty());
+  }
+  
+  static String[] inheritedgrammarArgs = { "-grammars",
+      "src/test/resources/de/monticore/inherited/Supergrammar.mc4",
+      "src/test/resources/de/monticore/inherited/sub/Subgrammar.mc4",
+      "src/test/resources/de/monticore/inherited/subsub/Subsubgrammar.mc4",
+      "-modelPath", modelPathPath.toAbsolutePath().toString(),
+      "-out", outputPath.getAbsolutePath(), "-targetPath", "src/test/resources", "-force" };
+  
+  /** {@link MontiCoreScript#run(Configuration)} */
+  @Test
+  public void testDefaultScriptSupergrammarArgs() {
+    Log.getFindings().clear();
+    testDefaultScript(inheritedgrammarArgs);
+    Assert.assertTrue(Log.getFindings().isEmpty());
+  }
+  
+  static String[] supersubgrammarArgs = { "-grammars",
+      "src/test/resources/de/monticore/inherited/subsub/Subsubgrammar.mc4",
+      "src/test/resources/de/monticore/inherited/Supergrammar.mc4",
+      "-modelPath", modelPathPath.toAbsolutePath().toString(),
+      "-out", outputPath.getAbsolutePath(), "-targetPath", "src/test/resources", "-force" };
+  
+  /** {@link MontiCoreScript#run(Configuration)} */
+  @Test
+  public void testDefaultScriptSupersubgrammarArgs() {
+    Log.getFindings().clear();
+    testDefaultScript(inheritedgrammarArgs);
+    Assert.assertTrue(Log.getFindings().isEmpty());
+  }
+  
+  protected void testDefaultScript(String[] args) {
     Configuration configuration =
         ConfigurationPropertiesMapContributor
-            .fromSplitMap(CLIArguments.forArguments(simpleArgs).asMap());
+            .fromSplitMap(CLIArguments.forArguments(args).asMap());
     MontiCoreConfiguration cfg = MontiCoreConfiguration.withConfiguration(configuration);
     new MontiCoreScript().run(cfg);
-    
     assertTrue(!false);
   }
   

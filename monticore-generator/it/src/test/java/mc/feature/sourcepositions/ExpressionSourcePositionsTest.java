@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.feature.sourcepositions;
 
@@ -59,12 +42,12 @@ public class ExpressionSourcePositionsTest extends GeneratorIntegrationsTest {
       // Start position of expression node coincides with the start position of
       // the left child
       ASTExpr leftChild = null;
-      if (node.getLeft().isPresent()) {
-        leftChild = node.getLeft().get();
+      if (node.getLeftOpt().isPresent()) {
+        leftChild = node.getLeftOpt().get();
         assertTrue(node.get_SourcePositionStart().compareTo(leftChild.get_SourcePositionStart()) == 0);
         
-        if (node.getRight().isPresent()) {
-          ASTExpr rightChild = node.getRight().get();
+        if (node.getRightOpt().isPresent()) {
+          ASTExpr rightChild = node.getRightOpt().get();
           
           // End position of expression node coincides with the end position of
           // the right child

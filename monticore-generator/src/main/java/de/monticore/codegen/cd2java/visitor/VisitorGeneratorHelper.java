@@ -1,25 +1,9 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.visitor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Joiner;
@@ -28,16 +12,12 @@ import de.monticore.codegen.GeneratorHelper;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.umlcd4a.symboltable.CDSymbol;
-import de.se_rwth.commons.Joiners;
+import de.se_rwth.commons.JavaNamesHelper;
 import de.se_rwth.commons.Names;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public class VisitorGeneratorHelper extends GeneratorHelper {
   
+  public static final String VISITOR = "Visitor";
   
   public VisitorGeneratorHelper(ASTCDCompilationUnit topAst, GlobalScope symbolTable) {
     super(topAst, symbolTable);
@@ -160,7 +140,34 @@ public class VisitorGeneratorHelper extends GeneratorHelper {
    * @see #getQualifiedVisitorType()
    */
   public static String getVisitorType(String cDName) {
-    return cDName + "Visitor";
+    return cDName + VISITOR;
+  }
+  
+  /**
+   * s
+   * 
+   * @param cDName
+   * @param index
+   * @param allCDs
+   * @return
+   */
+  public static String getVisitorType(String cDName, int index, List<CDSymbol> allCDs) {
+    List<String> names = new ArrayList<>();
+    allCDs.forEach(a -> names.add(a.getName()));
+    if (Collections.frequency(names, cDName) > 1) {
+      return getVisitorType(cDName) + index;
+    }
+    return getVisitorType(cDName);
+  }
+  
+  /**
+   * @param cDName
+   * @return name of the language's visitor interface, lowers first char and
+   * checks for reserved java-keyword.
+   * @see #getVisitorType(String)
+   */
+  public static String getVisitorName(String name) {
+    return JavaNamesHelper.javaAttribute(name);
   }
   
   /**

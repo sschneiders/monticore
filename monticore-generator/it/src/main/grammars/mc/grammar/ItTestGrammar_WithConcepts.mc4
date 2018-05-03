@@ -1,0 +1,20 @@
+/* (c) https://github.com/MontiCore/monticore */
+
+package mc.grammar;
+
+grammar ItTestGrammar_WithConcepts extends mc.grammar.ItTestGrammar, mc.lang.JavaDSL,
+  mc.grammar.concepts.antlr.ItTestAntlr {
+  
+  start MCGrammar;
+  
+  MCConcept = ConceptAntlr;
+  
+  Action = BlockStatement*;
+  
+  ExpressionPredicate = Expression;
+    
+  ActionAntlr = ClassMemberDeclaration*;
+  
+  JavaCode = ClassMemberDeclaration*;
+  
+}

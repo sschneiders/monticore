@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable;
 
@@ -111,27 +94,6 @@ public abstract class CommonSymbolTableCreator implements SymbolTableCreator {
     }
   }
 
-  /**
-   * @deprecated use {@link #addToScope(Symbol)} instead
-   */
-  @Override
-  @Deprecated
-  public void putInScope(final Symbol symbol) {
-    addToScope(symbol);
-  }
-
-  @Override
-  public void addToScope(Symbol symbol) {
-    if (!(symbol instanceof SymbolReference)){
-      if (currentScope().isPresent()) {
-        currentScope().get().add(symbol);
-      }
-      else {
-        Log.warn("0xA50212 Symbol cannot be added to current scope, since no scope exists.");
-      }
-    }
-  }
-
   @Override
   public void setLinkBetweenSymbolAndNode(Symbol symbol, ASTNode astNode) {
     // symbol -> ast
@@ -156,13 +118,16 @@ public abstract class CommonSymbolTableCreator implements SymbolTableCreator {
     astNode.setSpannedScope(scope);
   }
 
-  /**
-   * @deprecated use {@link #addToScopeAndLinkWithNode(Symbol, ASTNode)} instead
-   */
   @Override
-  @Deprecated
-  public void putInScopeAndLinkWithAst(Symbol symbol, ASTNode astNode) {
-    addToScopeAndLinkWithNode(symbol, astNode);
+  public void addToScope(Symbol symbol) {
+    if (!(symbol instanceof SymbolReference)){
+      if (currentScope().isPresent()) {
+        currentScope().get().add(symbol);
+      }
+      else {
+        Log.warn("0xA50212 Symbol cannot be added to current scope, since no scope exists.");
+      }
+    }
   }
 
   @Override

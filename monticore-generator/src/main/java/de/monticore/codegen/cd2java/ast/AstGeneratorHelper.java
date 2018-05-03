@@ -1,49 +1,33 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.ast;
 
 import java.util.Optional;
 
 import de.monticore.codegen.GeneratorHelper;
+import de.monticore.codegen.mc2cd.MC2CDStereotypes;
 import de.monticore.grammar.symboltable.MCGrammarSymbol;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.types.TypesHelper;
 import de.monticore.types.TypesPrinter;
 import de.monticore.types.types._ast.ASTSimpleReferenceType;
+import de.monticore.types.types._ast.ASTType;
+import de.monticore.types.types._ast.ASTVoidType;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDAttribute;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDClass;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
+import de.monticore.umlcd4a.cd4analysis._ast.ASTCDDefinition;
+import de.monticore.umlcd4a.cd4analysis._ast.ASTCDMethod;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDType;
 import de.monticore.umlcd4a.cd4analysis._visitor.CD4AnalysisVisitor;
 import de.se_rwth.commons.Joiners;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
+import de.monticore.generating.GeneratorSetup;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public class AstGeneratorHelper extends GeneratorHelper {
   
-  protected static final String AST_BUILDER = "Builder_";
+  protected static final String AST_BUILDER = "Builder";
   
   public AstGeneratorHelper(ASTCDCompilationUnit topAst, GlobalScope symbolTable) {
     super(topAst, symbolTable);
@@ -54,7 +38,7 @@ public class AstGeneratorHelper extends GeneratorHelper {
   }
   
   public String getAstAttributeValue(ASTCDAttribute attribute) {
-    if (attribute.getValue().isPresent()) {
+    if (attribute.isPresentValue()) {
       return attribute.printValue();
     }
     if (isOptional(attribute)) {
@@ -72,18 +56,32 @@ public class AstGeneratorHelper extends GeneratorHelper {
   
   public String getAstAttributeValueForBuilder(ASTCDAttribute attribute) {
     if (isOptional(attribute)) {
-      return "";
+      return "Optional.empty()";
+    }
+    else if (isBoolean(attribute)) {
+      return "false";
     }
     return getAstAttributeValue(attribute);
   }
   
-  public String getAstPackage() {
-    return getPackageName(getPackageName(), getAstPackageSuffix());
+  public static boolean isBuilderClass(ASTCDDefinition cdDefinition, ASTCDClass clazz) {
+    if (!clazz.getName().endsWith(AST_BUILDER)
+         && !clazz.getName().endsWith(AST_BUILDER + GeneratorSetup.GENERATED_CLASS_SUFFIX)) {
+      return false;
+    }
+    String className = clazz.getName().substring(0, clazz.getName().indexOf(AST_BUILDER));
+    return cdDefinition.getCDClassList().stream()
+        .filter(c -> className.equals(GeneratorHelper.getPlainName(c))).findAny()
+        .isPresent();
   }
   
   public Optional<ASTCDClass> getASTBuilder(ASTCDClass clazz) {
-    return getCdDefinition().getCDClasses().stream()
-        .filter(c -> c.getName().equals(getNameOfBuilderClass(clazz))).findAny();
+    return getCdDefinition().getCDClassList().stream()
+        .filter(c -> {
+          String name = getNameOfBuilderClass(clazz);
+          return c.getName().equals(name)
+            || c.getName().equals(name + GeneratorSetup.GENERATED_CLASS_SUFFIX);
+        }).findAny();
   }
   
   public static boolean compareAstTypes(String qualifiedType, String type) {
@@ -95,6 +93,13 @@ public class AstGeneratorHelper extends GeneratorHelper {
       return simpleName.equals(type);
     }
     return false;
+  }
+  
+  public static boolean isSuperClassExternal(ASTCDClass clazz) {
+    return clazz.isPresentSuperclass()
+        && hasStereotype(clazz, MC2CDStereotypes.EXTERNAL_TYPE.toString())
+        && getStereotypeValues(clazz, MC2CDStereotypes.EXTERNAL_TYPE.toString())
+            .contains(clazz.printSuperClass());
   }
   
   /**
@@ -121,7 +126,22 @@ public class AstGeneratorHelper extends GeneratorHelper {
   }
   
   public static String getNameOfBuilderClass(ASTCDClass astClass) {
-    return AST_BUILDER + getPlainName(astClass);
+    String name = Names.getSimpleName(astClass.getName());
+    if(astClass.getName().endsWith(GeneratorSetup.GENERATED_CLASS_SUFFIX)) {
+      name = name.substring(0, name.indexOf(GeneratorSetup.GENERATED_CLASS_SUFFIX));
+    }
+    return name + AST_BUILDER;
+  }
+  
+  public static String getSuperClassForBuilder(ASTCDClass clazz) {
+    if (!clazz.isPresentSuperclass()) {
+      return "";
+    }
+    String superClassName = Names.getSimpleName(clazz.printSuperClass());
+    return superClassName.endsWith(GeneratorSetup.GENERATED_CLASS_SUFFIX)
+        ? superClassName.substring(0, superClassName.indexOf(GeneratorSetup.GENERATED_CLASS_SUFFIX))
+        : superClassName;
+
   }
   
   public static boolean generateSetter(ASTCDClass clazz, ASTCDAttribute cdAttribute, String typeName) {
@@ -129,10 +149,10 @@ public class AstGeneratorHelper extends GeneratorHelper {
       return false;
     }
     String methodName = GeneratorHelper.getPlainSetter(cdAttribute);
-    if (clazz.getCDMethods().stream()
-        .filter(m -> methodName.equals(m.getName()) && m.getCDParameters().size() == 1
+    if (clazz.getCDMethodList().stream()
+        .filter(m -> methodName.equals(m.getName()) && m.getCDParameterList().size() == 1
             && compareAstTypes(typeName,
-                TypesHelper.printSimpleRefType(m.getCDParameters().get(0).getType())))
+                TypesHelper.printSimpleRefType(m.getCDParameterList().get(0).getType())))
         .findAny()
         .isPresent()) {
       return false;
@@ -149,6 +169,32 @@ public class AstGeneratorHelper extends GeneratorHelper {
   
   public static String getConstantClassSimpleName(MCGrammarSymbol grammarSymbol) {
     return "ASTConstants" + grammarSymbol.getName();
+  }
+  
+  public static String getASTClassNameWithoutPrefix(ASTCDType type) {
+    if (!GeneratorHelper.getPlainName(type).startsWith(GeneratorHelper.AST_PREFIX)) {
+      return type.getName();
+    }
+    return GeneratorHelper.getPlainName(type).substring(GeneratorHelper.AST_PREFIX.length());
+  }
+  
+  public static String getASTClassNameWithoutPrefix(String type) {
+    return type.startsWith(GeneratorHelper.AST_PREFIX)
+        ? type.substring(GeneratorHelper.AST_PREFIX.length())
+        : type;
+  }
+  
+  public static boolean isBuilderClassAbstract(ASTCDClass astType) {
+    return (astType.getModifierOpt().isPresent() && astType.getModifierOpt().get().isAbstract()
+            && !isSupertypeOfHWType(astType.getName()));
+  }
+
+  public static boolean isAbstract(ASTCDClass clazz) {
+    return clazz.isPresentModifier() && clazz.getModifier().isAbstract();
+  }
+  
+  public static boolean hasReturnTypeVoid(ASTCDMethod method) {
+    return method.getReturnType() instanceof ASTVoidType;
   }
   
   /**
@@ -174,11 +220,15 @@ public class AstGeneratorHelper extends GeneratorHelper {
     new Cd2JavaTypeConverter() {
       @Override
       public void visit(ASTSimpleReferenceType node) {
-        AstGeneratorHelper.this.transformQualifiedToSimpleIfPossible(node, GeneratorHelper.AST_DOT_PACKAGE_SUFFIX_DOT);
+       AstGeneratorHelper.this.transformQualifiedToSimpleIfPossible(node, GeneratorHelper.AST_DOT_PACKAGE_SUFFIX_DOT);
       }
     }.handle(ast);
     
     return ast;
+  }
+  
+  public String printFullType(ASTType ast) {
+    return TypesPrinter.printType(ast);
   }
   
   public class Cd2JavaTypeConverter implements CD4AnalysisVisitor {}

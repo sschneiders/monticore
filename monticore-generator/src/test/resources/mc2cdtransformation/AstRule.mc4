@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc2cdtransformation;
 
@@ -33,14 +16,14 @@ grammar AstRule extends mc2cdtransformation.super.Supergrammar {
    
    interface E;
    
-   ast A astextends ASTExternalProd;
+   astrule A astextends ASTExternalProd;
   
-   ast C astextends ASTA;
+   astrule C astextends ASTA;
   
-   ast D astextends ASTSuperProd astimplements ASTB, ASTSuperInterface, java.io.Serializable;
+   astrule D astextends ASTSuperProd astimplements ASTB, ASTSuperInterface, java.io.Serializable;
    
-   ast F astextends java.util.Observable;
+   astrule F astextends java.util.Observable;
    
-   ast E astextends ASTB, ASTSuperInterface, ASTExternalInterface, java.io.Serializable;
+   astrule E astextends ASTB, ASTSuperInterface, ASTExternalInterface, java.io.Serializable;
   
 }      

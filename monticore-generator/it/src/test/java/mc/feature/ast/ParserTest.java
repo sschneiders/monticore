@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.feature.ast;
 
@@ -59,19 +42,19 @@ public class ParserTest extends GeneratorIntegrationsTest {
     assertEquals(false, p.hasErrors());
     assertEquals("a", ast.getName());
     
-    assertEquals(true, ((ASTConstants) ast.getWired().get(0)).isPubblic());
-    assertEquals(false, ((ASTConstants) ast.getWired().get(0)).isPrivate());
+    assertEquals(true, ((ASTConstants) ast.getWiredList().get(0)).isPubblic());
+    assertEquals(false, ((ASTConstants) ast.getWiredList().get(0)).isPrivate());
     
-    assertEquals(true, ((ASTConstants) ast.getWired().get(1)).isPubblic());
-    assertEquals(false, ((ASTConstants) ast.getWired().get(1)).isPrivate());
+    assertEquals(true, ((ASTConstants) ast.getWiredList().get(1)).isPubblic());
+    assertEquals(false, ((ASTConstants) ast.getWiredList().get(1)).isPrivate());
     
-    assertEquals(false, ((ASTConstants) ast.getWired().get(2)).isPubblic());
-    assertEquals(true, ((ASTConstants) ast.getWired().get(2)).isPrivate());
+    assertEquals(false, ((ASTConstants) ast.getWiredList().get(2)).isPubblic());
+    assertEquals(true, ((ASTConstants) ast.getWiredList().get(2)).isPrivate());
     
-    assertEquals(true, ((ASTSpices1) ast.getWired().get(3)).isCarlique());
-    assertEquals(true, ((ASTSpices1) ast.getWired().get(3)).isPepper());
+    assertEquals(true, ((ASTSpices1) ast.getWiredList().get(3)).isCarlique());
+    assertEquals(true, ((ASTSpices1) ast.getWiredList().get(3)).isPepper());
     
-    assertEquals(ASTConstantsFeatureDSL.NONE, ((ASTSpices2) ((ASTAutomaton) ast).getWired().get(4)).getSpicelevel());
+    assertEquals(ASTConstantsFeatureDSL.NONE, ((ASTSpices2) ((ASTAutomaton) ast).getWiredList().get(4)).getSpicelevel());
     
   }
   
@@ -109,7 +92,7 @@ public class ParserTest extends GeneratorIntegrationsTest {
     assertEquals(false, p.hasErrors());
     assertTrue(ast.isPresent());
     assertEquals(true, ast.get().getA() instanceof ASTA);
-    assertEquals(true, ast.get().getB() instanceof List);
+    assertEquals(true, ast.get().getBList() instanceof List);
     
   }
   
@@ -131,7 +114,7 @@ public class ParserTest extends GeneratorIntegrationsTest {
     
     assertTrue(ast.isPresent());
     assertEquals(false, p.hasErrors());
-    assertEquals(true, ast.get().getA() instanceof List);
+    assertEquals(true, ast.get().getAList() instanceof List);
     
   }
   

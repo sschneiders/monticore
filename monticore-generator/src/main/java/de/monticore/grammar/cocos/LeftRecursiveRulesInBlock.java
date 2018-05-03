@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar.cocos;
 
@@ -43,8 +26,8 @@ public class LeftRecursiveRulesInBlock implements GrammarASTClassProdCoCo {
   public void check(ASTClassProd a) {
     DirectLeftRecursionDetector detector = new DirectLeftRecursionDetector();
     String ruleName = a.getName();
-    for (ASTAlt alt : a.getAlts()) {
-      if (!alt.getComponents().isEmpty() && alt.getComponents().get(0) instanceof ASTBlock) {
+    for (ASTAlt alt : a.getAltList()) {
+      if (!alt.getComponentList().isEmpty() && alt.getComponentList().get(0) instanceof ASTBlock) {
         if (detector.isAlternativeLeftRecursive(alt, ruleName)) {
           Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, ruleName),
               a.get_SourcePositionStart());

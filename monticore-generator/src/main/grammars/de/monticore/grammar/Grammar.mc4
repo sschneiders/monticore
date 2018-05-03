@@ -1,35 +1,4 @@
-/*
-***************************************************************************************
-Copyright (c) 2017, MontiCore
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-may be used to endorse or promote products derived from this software
-without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
-***************************************************************************************
-*/
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.grammar;
 
 /** The grammar describes the MontiCore grammar in its own format
@@ -61,7 +30,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   */
   MCGrammar =
     ("package" package:(Name& || ".")+ ";")?
-  	(importStatements:MCImportStatement)*
+  	(importStatement:MCImportStatement)*
 
     (["component"])? "grammar" Name
       ("extends" supergrammar:(GrammarReference || ",")+ )?
@@ -89,10 +58,10 @@ component grammar Grammar extends de.monticore.literals.Literals {
          )*
       "}" ;
 
-  MCImportStatement = "import" importList:(Name& || ".")+ ("." star:["*"])? ";" ;
+  MCImportStatement = "import" import:(Name& || ".")+ ("." star:["*"])? ";" ;
 
   // One OptionBlock and one StartRule only
-  ast MCGrammar =
+  astrule MCGrammar =
     ASTGrammarOption max=1
     ASTStartRule max=1 ;
 
@@ -179,9 +148,9 @@ component grammar Grammar extends de.monticore.literals.Literals {
       |
         "{" initAction:Action "}"
       )?
-      "=" alts:(LexAlt || "|")+
+      "=" alt:(LexAlt || "|")+
 
-      (":" ("{" endAction:Action  "}")? (variable:Name&
+      (":"  ("->" lexerCommand:Name)? ("{" endAction:Action  "}")? (variable:Name&
         ("->" type:( Name& || ".")+ (":" "{" block:Action "}" )? )? )? // Statements
       )?
     )
@@ -219,7 +188,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     |
       "astextends" aSTSuperInterface:(GenericType || ",")+
     )*
-   ("=" alts:(Alt || "|")+ )? ";";
+   ("=" alt:(Alt || "|")+ )? ";";
 
 
   /** An ASTAbstractprod represents an abstract production in a context free grammar
@@ -240,7 +209,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     |
       "astimplements" aSTSuperInterface:(GenericType || ",")+
     )* 
-    ("=" alts:(Alt || "|")+ )? ";";
+    ("=" alt:(Alt || "|")+ )? ";";
 
   /** A rule represents a rule (production) in a context free grammar.
   @attribute name Name of the rule
@@ -265,9 +234,9 @@ component grammar Grammar extends de.monticore.literals.Literals {
     )*
 
     ("{" Action "}")?    // Statements
-    ("=" alts:(Alt || "|")+ )? ";";
+    ("=" (Alt || "|")+ )? ";";
 
-  ast ClassProd =
+  astrule ClassProd =
     method public String toString() { return name; } ;
 
 
@@ -293,7 +262,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   RuleReference  =
     SemanticpredicateOrAction? Name ("<"prio:Num_Int">")? ;
 
-  ast RuleReference =
+  astrule RuleReference =
     method public String getTypeName() {
       return getName();
     }
@@ -311,7 +280,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute Components List of the rule components of this alternative
   */
   Alt =
-    ([rightAssoc:"<rightassoc>"])? components:RuleComponent* ;
+    ([rightAssoc:"<rightassoc>"])? component:RuleComponent* ;
 
 
   /** RuleComponents are parts of the alternatives
@@ -348,7 +317,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       )
       ":"
     )?
-    alts:(Alt || "|")+ ")"
+    alt:(Alt || "|")+ ")"
     (iteration:["?"|"*"|"+"])?;
 
 
@@ -382,7 +351,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
 
   interface ITerminal;
 
-  ast ITerminal =
+  astrule ITerminal =
       Name;
 
   /** A Terminal is usually something like "," or "start" */
@@ -449,7 +418,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute attributeInAST Attributes to be added to the class generation
   */
   ASTRule =
-     "ast" type:Name
+     ("astrule" | "ast" /* TODO (BOOTSTRAP): MB ast is deprecated: Remove in version 4.5.4 */ ) type:Name
     (
       "astextends" aSTSuperClass:(GenericType || ",")+
     |
@@ -479,7 +448,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       (["static"])?
       returnType:GenericType Name
       "(" (MethodParameter || ",")* ")"
-      ("throws" exceptions:(GenericType || ",")+)?
+      ("throws" exception:(GenericType || ",")+)?
       "{" body:Action "}" ; // Statements
 
 
@@ -494,19 +463,14 @@ component grammar Grammar extends de.monticore.literals.Literals {
   /** An attribute to be added to a certain ASTClass
   @attribute name Name of the attribute
   @attribute genericType Name of the referring type
-  @attribute unordered Defines whether a collection is ordered or unordered
   @attribute card Cardinality
-  @attribute derived True indicates that the attribute is derived as specified in body
-  @attribute body Specification of derived attribute
   */
   AttributeInAST =
     (Name  ":")?
-    ([unordered:"<<unordered>>"])?
     GenericType
-    Card?
-    (["derived"] "{" body:Action "}")? ;  // Statements
-
-
+    Card?;
+ 
+ 
   /**
   A GenericType represents an generic java type
   @attribute name List containing the name of the type
@@ -519,23 +483,15 @@ component grammar Grammar extends de.monticore.literals.Literals {
     {_aNode.setDimension(0);} ("[" "]"
       {_aNode.setDimension(_aNode.getDimension()+1);} )*;
 
-  ast GenericType =
+  astrule GenericType =
     Dimension:int
-    method public String toString() {
-      return  de.monticore.grammar.HelperGrammar.printGenericType(this);
-    }
-    method public String getTypeName() {
-      return de.monticore.grammar.HelperGrammar.printGenericType(this);
-    }
-    method public boolean isExternal() {
-        return true;
-    };
+  ;
 
   // ------------------------------------------------------------------------------
   // Lexer
 
   LexAlt =
-    (lexComponents:LexComponent)*;
+    (lexComponent:LexComponent)*;
 
   interface LexComponent;
 
@@ -549,7 +505,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       )
       ":"
      )?
-     lexAlts:(LexAlt || "|")+ ")"
+     lexAlt:(LexAlt || "|")+ ")"
      (iteration:["?"|"*"|"+"])?;
 
   LexCharRange implements LexComponent =

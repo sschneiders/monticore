@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.embedding.external.composite._symboltable;
 
@@ -24,7 +7,7 @@ import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import mc.embedding.external.composite._visitor.CommonCompositeDelegatorVisitor;
+import mc.embedding.external.composite._visitor.CompositeDelegatorVisitor;
 import mc.embedding.external.composite._visitor.CompositeVisitor;
 import mc.embedding.external.embedded._symboltable.EmbeddedSymbolTableCreator;
 import mc.embedding.external.host._ast.ASTHost;
@@ -36,7 +19,7 @@ public class CompositeSymbolTableCreator extends CommonSymbolTableCreator implem
 
   private final HostSymbolTableCreator hostSymbolTableCreator;
 
-  public final CommonCompositeDelegatorVisitor visitor;
+  public final CompositeDelegatorVisitor visitor;
 
   private CompositeVisitor realThis = this;
 
@@ -46,10 +29,10 @@ public class CompositeSymbolTableCreator extends CommonSymbolTableCreator implem
 
     this.hostSymbolTableCreator = new HostSymbolTableCreator(resolverConfig, scopeStack);
 
-    visitor = new CommonCompositeDelegatorVisitor();
-    visitor.set_mc_embedding_external_composite__visitor_CompositeVisitor(this);
-    visitor.set_mc_embedding_external_host__visitor_HostVisitor(this.hostSymbolTableCreator);
-    visitor.set_mc_embedding_external_embedded__visitor_EmbeddedVisitor(
+    visitor = new CompositeDelegatorVisitor();
+    visitor.setCompositeVisitor(this);
+    visitor.setHostVisitor(this.hostSymbolTableCreator);
+    visitor.setEmbeddedVisitor(
         new EmbeddedSymbolTableCreator(resolverConfig, scopeStack));
   }
 
@@ -59,10 +42,10 @@ public class CompositeSymbolTableCreator extends CommonSymbolTableCreator implem
 
     this.hostSymbolTableCreator = new HostSymbolTableCreator(resolverConfig, scopeStack);
 
-    visitor = new CommonCompositeDelegatorVisitor();
-    visitor.set_mc_embedding_external_composite__visitor_CompositeVisitor(this);
-    visitor.set_mc_embedding_external_host__visitor_HostVisitor(this.hostSymbolTableCreator);
-    visitor.set_mc_embedding_external_embedded__visitor_EmbeddedVisitor(
+    visitor = new CompositeDelegatorVisitor();
+    visitor.setCompositeVisitor(this);
+    visitor.setHostVisitor(this.hostSymbolTableCreator);
+    visitor.setEmbeddedVisitor(
         new EmbeddedSymbolTableCreator(resolverConfig, scopeStack));
   }
 

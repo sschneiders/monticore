@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable;
 
@@ -41,6 +24,7 @@ import de.monticore.symboltable.mocks.languages.scandentity.State2EntityTransiti
 import de.monticore.symboltable.mocks.languages.statechart.StateChartSymbol;
 import de.monticore.symboltable.mocks.languages.statechart.StateSymbol;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -86,7 +70,7 @@ public class AdaptedResolvingTest {
     assertTrue(entity2state instanceof Entity2StateAdapter);
     assertSame(entity, ((Entity2StateAdapter) entity2state).getAdaptee());
   }
-
+  
   @Test
   public void testAdaptedResolvingInDifferentScope() {
     final MutableScope parentScope = new CommonScope(true);
@@ -130,7 +114,6 @@ public class AdaptedResolvingTest {
     assertSame(entity, ((Entity2StateAdapter) entity2state).getAdaptee());
   }
 
-
   @Test
   public void testTransitiveAdaptedResolvingInSameScope() {
     final MutableScope scope = new CommonScope(true);
@@ -164,7 +147,6 @@ public class AdaptedResolvingTest {
     // (Statechart)
     assertSame(sc, adap2.getAdaptee());
   }
-
   @Test
   public void testCircularAdaptedResolvingDependencies() {
     final MutableScope scope = new CommonScope(true);
@@ -199,7 +181,7 @@ public class AdaptedResolvingTest {
     assertTrue(entity2sc instanceof Entity2ScAdapter);
     assertSame(entity, ((Entity2ScAdapter) entity2sc).getAdaptee());
   }
-
+ 
   @Test
   public void testTransitiveCircularAdaptedResolvingDependencies() {
     final MutableScope scope = new CommonScope(true);

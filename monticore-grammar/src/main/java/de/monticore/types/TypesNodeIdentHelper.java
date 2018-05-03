@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
  
 package de.monticore.types;
 
@@ -35,7 +18,7 @@ import de.monticore.types.types._ast.ASTTypeVariableDeclaration;
 public class TypesNodeIdentHelper extends LiteralsNodeIdentHelper {
   
   protected String unqualName(ASTQualifiedName ast) {
-    List<String> parts = ast.getParts();
+    List<String> parts = ast.getPartList();
     return parts.get(parts.size() - 1);
   }
   
@@ -51,9 +34,9 @@ public class TypesNodeIdentHelper extends LiteralsNodeIdentHelper {
   
   public String getIdent(ASTSimpleReferenceType a) {
     StringBuilder name = new StringBuilder();
-    for (int i = 0; i < a.getNames().size(); i++) {
-      name.append(a.getNames().get(i));
-      if (i != a.getNames().size() - 1) {
+    for (int i = 0; i < a.getNameList().size(); i++) {
+      name.append(a.getNameList().get(i));
+      if (i != a.getNameList().size() - 1) {
         name.append(".");
       }
     }
@@ -61,7 +44,7 @@ public class TypesNodeIdentHelper extends LiteralsNodeIdentHelper {
   }
   
   public String getIdent(ASTTypeParameters a) {
-    List<ASTTypeVariableDeclaration> l = a.getTypeVariableDeclarations();
+    List<ASTTypeVariableDeclaration> l = a.getTypeVariableDeclarationList();
     String n = ""; 
     if (l.isEmpty()) {
       n += "-";

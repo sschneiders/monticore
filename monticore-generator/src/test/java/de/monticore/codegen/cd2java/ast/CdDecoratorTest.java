@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.ast;
 
@@ -69,9 +52,13 @@ public class CdDecoratorTest {
   
   private ASTCDDefinition cdDefinition;
   
+  private ASTCDDefinition cdDefinitionBuilder;
+  
   private GlobalExtensionManagement glex;
   
   private AstGeneratorHelper astHelper;
+  
+  private AstGeneratorHelper astHelperBuilder;
   
   private CdDecorator cdDecorator;
   
@@ -83,7 +70,7 @@ public class CdDecoratorTest {
   public static void setup() {
     final ResolvingConfiguration resolvingConfiguration = new ResolvingConfiguration();
     CD4AnalysisLanguage cd4AnalysisLanguage = new CD4AnalysisLanguage();
-    resolvingConfiguration.addTopScopeResolvers(cd4AnalysisLanguage.getResolvingFilters());
+    resolvingConfiguration.addDefaultFilters(cd4AnalysisLanguage.getResolvingFilters());
     
     globalScope = new GlobalScope(modelPath, cd4AnalysisLanguage, resolvingConfiguration);
   }
@@ -98,8 +85,8 @@ public class CdDecoratorTest {
       assertNotNull(cdComilationUnit.getCDDefinition());
       cdDefinition = cdComilationUnit.getCDDefinition();
       assertEquals("Simple", cdDefinition.getName());
-      assertEquals(2, cdDefinition.getCDClasses().size());
-      ASTCDClass classA = cdDefinition.getCDClasses().get(0);
+      assertEquals(2, cdDefinition.getCDClassList().size());
+      ASTCDClass classA = cdDefinition.getCDClassList().get(0);
       assertEquals("ASTA", classA.getName());
       glex = new GlobalExtensionManagement();
       cdDecorator = new CdDecorator(glex, null, IterablePath.empty());
@@ -113,46 +100,106 @@ public class CdDecoratorTest {
     }
   }
   
+  @Before
+  public void initBuilderCD() {
+    String classDiagram = "src/test/resources/de/monticore/Builder.cd";
+    try {
+      Optional<ASTCDCompilationUnit> topNode = new CD4AnalysisParser().parse(new FileReader(classDiagram));
+      assertTrue(topNode.isPresent());
+      ASTCDCompilationUnit compUnit = topNode.get();
+      assertNotNull(compUnit.getCDDefinition());
+      cdDefinitionBuilder = compUnit.getCDDefinition();
+      astHelperBuilder = new AstGeneratorHelper(compUnit, globalScope);
+    }
+    catch (FileNotFoundException e) {
+      fail("Should not reach this, but: " + e);
+    }
+    catch (IOException e) {
+      fail("Should not reach this, but: " + e);
+    }
+  }
+  
+  
   /** {@link CdDecorator#decorateWithBuilders(ASTCDDefinition, GlobalExtensionManagement)} */
   @Test
   public void decorateWithBuilders() {
-    assertEquals(2, cdDefinition.getCDClasses().size());
-    List<ASTCDClass> nativeClasses = Lists.newArrayList(cdDefinition.getCDClasses());
+    assertEquals(2, cdDefinition.getCDClassList().size());
+    List<ASTCDClass> nativeClasses = Lists.newArrayList(cdDefinition.getCDClassList());
     
     cdDecorator.addBuilders(cdDefinition, astHelper);
-    assertEquals(4, cdDefinition.getCDClasses().size());
+    assertEquals(4, cdDefinition.getCDClassList().size());
     
     for (ASTCDClass clazz : nativeClasses) {
       assertTrue(astHelper.getASTBuilder(clazz).isPresent());
       ASTCDClass builderClass = astHelper.getASTBuilder(clazz).get();
-      assertTrue(builderClass.getName().startsWith("Builder_"));
-      assertTrue(builderClass.getName().endsWith(clazz.getName()));
+      assertTrue(builderClass.getName().endsWith(AstGeneratorHelper.AST_BUILDER));
+      assertTrue(builderClass.getName().startsWith(clazz.getName()));
     }
+  }
+  
+  @Test
+  public void decorateBuilderMethods() {
+    assertEquals(6, cdDefinitionBuilder.getCDClassList().size());
+    List<ASTCDClass> nativeClasses = Lists.newArrayList(cdDefinitionBuilder.getCDClassList());
+    
+    cdDecorator.addBuilders(cdDefinitionBuilder, astHelperBuilder);
+    assertEquals(12, cdDefinitionBuilder.getCDClassList().size());
+    
+    for(ASTCDClass clazz : nativeClasses) {
+      ASTCDClass builder = astHelperBuilder.getASTBuilder(clazz).get();
+      cdDecorator.decorateBuilderClass(builder, astHelperBuilder, cdDefinitionBuilder);
+    }
+    
+    // builder class with list attribute -> 34 additional list methods
+    ASTCDClass astA = cdDefinitionBuilder.getCDClass(6);
+    assertEquals(34, astA.getCDMethodList().size());
+    
+    // builder class with boolean attribute -> 2 additional methods
+    ASTCDClass astB = cdDefinitionBuilder.getCDClass(7);
+    assertEquals(2, astB.getCDMethodList().size());
+    assertEquals("isBool", astB.getCDMethod(0).getName());
+    assertEquals("setBool", astB.getCDMethod(1).getName());
+    
+    // builder class with optional attribute -> 6 additional methods
+    ASTCDClass astC = cdDefinitionBuilder.getCDClass(8);
+    assertEquals(6, astC.getCDMethodList().size());
+    
+    // builder class with normal attribute -> 2 additional methods
+    ASTCDClass astD = cdDefinitionBuilder.getCDClass(9);
+    assertEquals(2, astD.getCDMethodList().size());
+    assertEquals("getA", astD.getCDMethod(0).getName());
+    assertEquals("setA", astD.getCDMethod(1).getName());
+    
+    // builder class with explicit superclass -> 45 additional methods (overridden from ASTNodeBuilder)
+    ASTCDClass astE = cdDefinitionBuilder.getCDClass(10);
+    assertEquals(45, astE.getCDMethodList().size());
+    
+    
   }
   
   /** {@link CdDecorator#addGetter(ASTCDClass, AstGeneratorHelper)} */
   @Test
   public void addGetter() {
     cdDecorator.addBuilders(cdDefinition, astHelper);
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
       cdDecorator.addGetter(clazz, astHelper);
     }
     
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
       if (clazz.getName().equals("ASTA")) {
-        assertEquals(1, clazz.getCDMethods().size());
-        ASTCDMethod method = clazz.getCDMethods().get(0);
+        assertEquals(1, clazz.getCDMethodList().size());
+        ASTCDMethod method = clazz.getCDMethodList().get(0);
         assertEquals("getName", method.getName());
         assertTrue(method.getReturnType() instanceof ASTSimpleReferenceType);
-        assertEquals("String", ((ASTSimpleReferenceType) method.getReturnType()).getNames()
+        assertEquals("String", ((ASTSimpleReferenceType) method.getReturnType()).getNameList()
             .get(0));
       }
       else if (clazz.getName().equals("ASTB")) {
-        assertEquals(1, clazz.getCDMethods().size());
-        ASTCDMethod method = clazz.getCDMethods().get(0);
+        assertEquals(1, clazz.getCDMethodList().size());
+        ASTCDMethod method = clazz.getCDMethodList().get(0);
         assertEquals("getA", method.getName());
         assertTrue(method.getReturnType() instanceof ASTSimpleReferenceType);
-        assertEquals("ASTA", ((ASTSimpleReferenceType) method.getReturnType()).getNames().get(0));
+        assertEquals("ASTA", ((ASTSimpleReferenceType) method.getReturnType()).getNameList().get(0));
       }
     }
   }
@@ -160,33 +207,33 @@ public class CdDecoratorTest {
   /** {@link CdDecorator#addSetter(ASTCDClass, AstGeneratorHelper)} */
   @Test
   public void addSetter() {
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
-      cdDecorator.addSetter(clazz, astHelper);
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
+      cdDecorator.addSetter(clazz, astHelper, cdDefinition);
     }
     
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
       if (clazz.getName().equals("ASTA")) {
-        assertEquals(1, clazz.getCDMethods().size());
-        ASTCDMethod method = clazz.getCDMethods().get(0);
+        assertEquals(1, clazz.getCDMethodList().size());
+        ASTCDMethod method = clazz.getCDMethodList().get(0);
         assertEquals("setName", method.getName());
         assertTrue(method.getReturnType() instanceof ASTVoidType);
-        assertEquals(1, method.getCDParameters().size());
-        assertEquals("name", method.getCDParameters().get(0).getName());
+        assertEquals(1, method.getCDParameterList().size());
+        assertEquals("name", method.getCDParameterList().get(0).getName());
         assertEquals(
             "String",
             Names.getQualifiedName(((ASTSimpleReferenceType) method
-                .getCDParameters().get(0).getType()).getNames()));
+                .getCDParameterList().get(0).getType()).getNameList()));
       }
       else if (clazz.getName().equals("ASTB")) {
-        assertEquals(1, clazz.getCDMethods().size());
-        ASTCDMethod method = clazz.getCDMethods().get(0);
+        assertEquals(1, clazz.getCDMethodList().size());
+        ASTCDMethod method = clazz.getCDMethodList().get(0);
         assertEquals("setA", method.getName());
         assertTrue(method.getReturnType() instanceof ASTVoidType);
-        assertEquals("a", method.getCDParameters().get(0).getName());
+        assertEquals("a", method.getCDParameterList().get(0).getName());
         assertEquals(
             "ASTA",
             Names.getQualifiedName(((ASTSimpleReferenceType) method
-                .getCDParameters().get(0).getType()).getNames()));
+                .getCDParameterList().get(0).getType()).getNameList()));
       }
     }
   }
@@ -194,25 +241,25 @@ public class CdDecoratorTest {
   /** {@link CdDecorator#addNodeFactoryClass(ASTCDCompilationUnit, List, AstGeneratorHelper)  */
   @Test
   public void addNodeFactoryClass() {
-    assertEquals(2, cdDefinition.getCDClasses().size());
-    cdDecorator.addNodeFactoryClass(cdComilationUnit, cdDefinition.getCDClasses(), astHelper);
-    assertEquals(3, cdDefinition.getCDClasses().size());
-    Optional<ASTCDClass> nodeFactoryClass = cdDefinition.getCDClasses().stream()
+    assertEquals(2, cdDefinition.getCDClassList().size());
+    cdDecorator.addNodeFactoryClass(cdComilationUnit, cdDefinition.getCDClassList(), astHelper);
+    assertEquals(3, cdDefinition.getCDClassList().size());
+    Optional<ASTCDClass> nodeFactoryClass = cdDefinition.getCDClassList().stream()
         .filter(c -> c.getName().equals("SimpleNodeFactory")).findAny();
     assertTrue(nodeFactoryClass.isPresent());
-    assertEquals(8, nodeFactoryClass.get().getCDMethods().size());
-    assertEquals(2, nodeFactoryClass.get().getCDAttributes().size());
+    assertEquals(8, nodeFactoryClass.get().getCDMethodList().size());
+    assertEquals(2, nodeFactoryClass.get().getCDAttributeList().size());
   }
   
   /** {@link CdDecorator#additionalMethods(ASTCDClass, AstGeneratorHelper)  */
   @Test
   public void additionalMethods() {
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
       cdDecorator.addAdditionalMethods(clazz, astHelper);
     }
     
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
-      assertEquals(13, clazz.getCDMethods().size());
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
+      assertEquals(11, clazz.getCDMethodList().size());
     }
     
     // Check if there are all additional methods defined in the given CD class
@@ -221,9 +268,9 @@ public class CdDecoratorTest {
       additionalMethods.add(additionalMethod.name());
     }
     List<String> methods = Lists.newArrayList();
-    for (ASTCDClass cdClass : cdDefinition.getCDClasses()) {
+    for (ASTCDClass cdClass : cdDefinition.getCDClassList()) {
       // All methods of CD class
-      for (ASTCDMethod method : cdClass.getCDMethods()) {
+      for (ASTCDMethod method : cdClass.getCDMethodList()) {
         methods.add(method.getName());
       }
       
@@ -243,12 +290,12 @@ public class CdDecoratorTest {
   /** {@link CdDecorator#addConstructors(ASTCDClass, AstGeneratorHelper)  */
   @Test
   public void addConstructors() {
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
       cdDecorator.addConstructors(clazz, astHelper);
     }
     
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
-      assertEquals(2, clazz.getCDConstructors().size());
+    for (ASTCDClass clazz : cdDefinition.getCDClassList()) {
+      assertEquals(2, clazz.getCDConstructorList().size());
     }
   }
   

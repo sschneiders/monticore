@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.types;
 
@@ -119,26 +102,26 @@ public class JTypeSymbolsHelper {
       JTypeReferenceFactory<?> typeRefFactory) {
     if (astType instanceof ASTSimpleReferenceType) {
       ASTSimpleReferenceType astSimpleReferenceType = (ASTSimpleReferenceType) astType;
-      if (!astSimpleReferenceType.getTypeArguments().isPresent()) {
+      if (!astSimpleReferenceType.isPresentTypeArguments()) {
         return;
       }
       List<ActualTypeArgument> actualTypeArguments = new ArrayList<>();
-      for (ASTTypeArgument astTypeArgument : astSimpleReferenceType.getTypeArguments().get()
-          .getTypeArguments()) {
+      for (ASTTypeArgument astTypeArgument : astSimpleReferenceType.getTypeArguments()
+          .getTypeArgumentList()) {
         if (astTypeArgument instanceof ASTWildcardType) {
           ASTWildcardType astWildcardType = (ASTWildcardType) astTypeArgument;
           
           // Three cases can occur here: lower bound, upper bound, no bound
-          if (astWildcardType.lowerBoundIsPresent() || astWildcardType.upperBoundIsPresent()) {
+          if (astWildcardType.isPresentLowerBound() || astWildcardType.isPresentUpperBound()) {
             // We have a bound.
             // Examples: Set<? extends Number>, Set<? super Integer>
             
             // new bound
-            boolean lowerBound = astWildcardType.lowerBoundIsPresent();
+            boolean lowerBound = astWildcardType.isPresentLowerBound();
             ASTType typeBound = lowerBound
-                ? astWildcardType.getLowerBound().get()
+                ? astWildcardType.getLowerBound()
                 : astWildcardType
-                    .getUpperBound().get();
+                    .getUpperBound();
             int dimension = TypesHelper.getArrayDimensionIfArrayOrZero(typeBound);
             
             JTypeReference<?> typeBoundSymbolReference = typeRefFactory.create(
@@ -185,7 +168,7 @@ public class JTypeSymbolsHelper {
     else if (astType instanceof ASTComplexReferenceType) {
       ASTComplexReferenceType astComplexReferenceType = (ASTComplexReferenceType) astType;
       for (ASTSimpleReferenceType astSimpleReferenceType : astComplexReferenceType
-          .getSimpleReferenceTypes()) {
+          .getSimpleReferenceTypeList()) {
         // TODO
         /* ASTComplexReferenceType represents types like class or interface types which always have
          * ASTSimpleReferenceType as qualification. For example: a.b.c<Arg>.d.e<Arg> */
@@ -234,7 +217,7 @@ public class JTypeSymbolsHelper {
       else if (astInterfaceType instanceof ASTComplexReferenceType) {
         ASTComplexReferenceType astComplexReferenceType = (ASTComplexReferenceType) astInterfaceType;
         for (ASTSimpleReferenceType astSimpleReferenceType : astComplexReferenceType
-            .getSimpleReferenceTypes()) {
+            .getSimpleReferenceTypeList()) {
           // TODO
         }
       }
@@ -265,7 +248,7 @@ public class JTypeSymbolsHelper {
     if (typeParameters.isPresent()) {
       ASTTypeParameters astTypeParameters = typeParameters.get();
       for (ASTTypeVariableDeclaration astTypeParameter : astTypeParameters
-          .getTypeVariableDeclarations()) {
+          .getTypeVariableDeclarationList()) {
         // new type parameter
         U typeParameter = symbolFactory
             .createTypeVariable(astTypeParameter.getName());
@@ -273,7 +256,7 @@ public class JTypeSymbolsHelper {
         
         // Treat type bounds are implemented interfaces, even though the
         // first bound might be a class. See also JLS7.
-        List<ASTType> types = new ArrayList<ASTType>(astTypeParameter.getUpperBounds());
+        List<ASTType> types = new ArrayList<ASTType>(astTypeParameter.getUpperBoundList());
         addInterfacesToType(typeParameter, types, definingScope, typeRefFactory);
         
         jMethodSymbol.addFormalTypeParameter(typeParameter);
@@ -303,7 +286,7 @@ public class JTypeSymbolsHelper {
     if (optionalTypeParameters.isPresent()) {
       ASTTypeParameters astTypeParameters = optionalTypeParameters.get();
       for (ASTTypeVariableDeclaration astTypeParameter : astTypeParameters
-          .getTypeVariableDeclarations()) {
+          .getTypeVariableDeclarationList()) {
         // new type parameter
         
         // TypeParameters/TypeVariables are seen as type declarations.
@@ -313,7 +296,7 @@ public class JTypeSymbolsHelper {
         
         // Treat type bounds are implemented interfaces, even though the
         // first bound might be a class. See also JLS7.
-        List<ASTType> types = new ArrayList<ASTType>(astTypeParameter.getUpperBounds());
+        List<ASTType> types = new ArrayList<ASTType>(astTypeParameter.getUpperBoundList());
         addInterfacesToType(jTypeVariableSymbol, types, definingScope, typeRefFactory);
         
         // add type parameter
@@ -345,7 +328,7 @@ public class JTypeSymbolsHelper {
     
     if (astType instanceof ASTSimpleReferenceType) {
       ASTSimpleReferenceType astSimpleReferenceType = (ASTSimpleReferenceType) astType;
-      if (astSimpleReferenceType.getTypeArguments().isPresent()) {
+      if (astSimpleReferenceType.isPresentTypeArguments()) {
         addTypeArgumentsToTypeSymbol(fieldTypeReference, astSimpleReferenceType, definingScope,
             typeRefFactory);
       }
@@ -353,7 +336,7 @@ public class JTypeSymbolsHelper {
     else if (astType instanceof ASTComplexReferenceType) {
       ASTComplexReferenceType astComplexReferenceType = (ASTComplexReferenceType) astType;
       for (ASTSimpleReferenceType astSimpleReferenceType : astComplexReferenceType
-          .getSimpleReferenceTypes()) {
+          .getSimpleReferenceTypeList()) {
         // TODO
       }
     }

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar.cocos;
 
@@ -47,7 +30,7 @@ public class OverridingLexNTs implements GrammarASTMCGrammarCoCo {
     List<MCGrammarSymbol> grammarSymbols = grammarSymbol.getSuperGrammarSymbols();
     
     for (MCGrammarSymbol s : grammarSymbols) {
-      for (ASTLexProd p : a.getLexProds()) {
+      for (ASTLexProd p : a.getLexProdList()) {
         doCheck(s.getProdWithInherited(p.getName()), p);
       }
     }
@@ -55,8 +38,8 @@ public class OverridingLexNTs implements GrammarASTMCGrammarCoCo {
   
   private void doCheck(Optional<MCProdSymbol> prodSymbol, ASTLexProd lexProd) {
     if (prodSymbol.isPresent() && prodSymbol.get().isLexerProd()
-        && !((ASTLexProd) prodSymbol.get().getAstNode().get()).getType()
-            .equals(lexProd.getType())) {
+        && !((ASTLexProd) prodSymbol.get().getAstNode().get()).getTypeList()
+            .equals(lexProd.getTypeList())) {
       Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, lexProd.getName()));
     }
   }

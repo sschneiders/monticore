@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable.mocks.languages.references;
 
@@ -24,12 +7,12 @@ import java.util.Optional;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.mocks.languages.entity.EntitySymbol;
 import de.monticore.symboltable.mocks.languages.entity.PropertySymbol;
-import de.monticore.symboltable.references.FailedLoadingSymbol;
 import de.monticore.symboltable.references.SymbolReference;
 import de.monticore.symboltable.types.CommonJTypeSymbol;
 import de.monticore.symboltable.types.TypeSymbol;
 import de.monticore.symboltable.types.references.CommonTypeReference;
 import de.monticore.symboltable.types.references.TypeReference;
+import de.se_rwth.commons.logging.Log;
 
 public class PropertySymbolReference extends PropertySymbol implements
     SymbolReference<PropertySymbol> {
@@ -59,10 +42,10 @@ public class PropertySymbolReference extends PropertySymbol implements
       referencedSymbol = entitySymbol.getProperty(getName()).orElse(null);
 
       if (!isReferencedSymbolLoaded()) {
-        throw new FailedLoadingSymbol(getName());
+        Log.error("0xA1045 " + SymbolReference.class.getSimpleName() + " Could not load full information of '" +
+            getName() + "' (Kind " + getKind() + ").");
       }
     }
-
     return referencedSymbol;
   }
 
@@ -71,15 +54,8 @@ public class PropertySymbolReference extends PropertySymbol implements
     if (isReferencedSymbolLoaded()) {
       return true;
     }
-
-    try {
-      getReferencedSymbol();
-    }
-    catch (FailedLoadingSymbol e) {
-      return false;
-    }
-
-    return true;
+    final EntitySymbol entitySymbol = (EntitySymbol) typeReference.getReferencedSymbol();
+    return entitySymbol.getProperty(getName()).isPresent();
   }
 
   @Override

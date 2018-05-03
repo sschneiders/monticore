@@ -1,0 +1,55 @@
+/* (c) https://github.com/MontiCore/monticore */
+
+package mc.grammar.concepts.texteditoringrammar;
+
+component grammar ItTestTextEditorInGrammar extends mc.grammar.literals.ItTestLiterals {
+			
+     token NUM = ('0'..'9')+;
+
+	TextEditorInGrammarConcept=
+		 "{" 
+		   (keywords:KeywordDefinition)?
+		   (foldings:FoldingDefinition)?
+		   (segments:SegmentDefinition)*
+		   ("categories" "{" (category:CategoryDefinition)* "}")?
+		   ("filters" "{" (filter:FilterDefinition)* "}")?
+		"}";
+	
+	astrule TextEditorInGrammarConcept =
+	
+		method public String toString(){
+			return "";
+		};	
+	
+	KeywordDefinition=
+		"keywords" ":" keywords:(WordDefinition || ",")+ ";";
+
+	FoldingDefinition=
+		"foldable" ":" foldables:WordDefinition ("," foldables:WordDefinition)* ";";
+
+	CategoryDefinition=
+		(overriding:["overrides"])? Name  ( "(" weight:NUM ")" )? ":" member:(Name || ",")+ ";";
+		
+	FilterDefinition=
+		filterName:Name ":" segmentType:(Name || ",")+ "(" (pluginName: String ",")? picturePath: String ")" (toolTip: String)? ";"
+	;	
+
+	SegmentDefinition=
+		(topLevel:["toplevel"])? "segment" ":" rule:Name ( "("  (pluginName:String ",")? picturePath:String  ")" )?
+		"show" ":" ( toString:["toString"]  | ( components:Component)*  | methodDeclaration:Method ) ";";
+	
+	external Method;
+	
+	interface Component;	
+		
+	SimpleString implements Component=
+		string:String;
+		
+	Attribute implements Component =
+		Name ("." method:Name "(" ")")* ( "[" separator:String "]" )? ;
+	
+	//keywords must be added explicit here because of the use in the above Segmentdefinition
+	WordDefinition=
+		word:Name | word:"catch" | | word:"try" | word:"return" | word:"protected";
+		
+}

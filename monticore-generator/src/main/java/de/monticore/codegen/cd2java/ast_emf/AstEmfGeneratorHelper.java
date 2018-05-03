@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.ast_emf;
 
@@ -67,7 +50,7 @@ public class AstEmfGeneratorHelper extends AstGeneratorHelper {
    */
   @Override
   public String getAstAttributeValue(ASTCDAttribute attribute, ASTCDType clazz) {
-    if (attribute.getValue().isPresent()) {
+    if (attribute.isPresentValue()) {
       return attribute.printValue();
     }
     if (isOptional(attribute)) {
@@ -134,8 +117,8 @@ public class AstEmfGeneratorHelper extends AstGeneratorHelper {
    * @return
    */
   public List<ASTCDType> getNativeTypes(ASTCDDefinition cdDefinition) {
-    List<ASTCDType> types = new ArrayList<>(cdDefinition.getCDClasses());
-    types.addAll(cdDefinition.getCDInterfaces());
+    List<ASTCDType> types = new ArrayList<>(cdDefinition.getCDClassList());
+    types.addAll(cdDefinition.getCDInterfaceList());
     String genNode = BaseInterfaceAddingManipulation.getBaseInterfaceName(getCdDefinition());
     return types.stream().filter(c -> !c.getName().equals(genNode))
         .collect(Collectors.toList());
@@ -211,8 +194,7 @@ public class AstEmfGeneratorHelper extends AstGeneratorHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param cdType
    * @return
    */
@@ -331,7 +313,7 @@ public class AstEmfGeneratorHelper extends AstGeneratorHelper {
   }
   
   public static String getSuperClass(ASTCDClass clazz) {
-    if (!clazz.getSuperclass().isPresent()) {
+    if (!clazz.isPresentSuperclass()) {
       return ASTECNode.class.getName();
     }
     return clazz.printSuperClass();

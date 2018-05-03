@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.symboltable;
 
@@ -117,7 +100,7 @@ public class ResolvingTest {
 
     final ModelingLanguage modelingLanguage = new EntityLanguage();
     final ResolvingConfiguration resolvingConfiguration = new ResolvingConfiguration();
-    resolvingConfiguration.addTopScopeResolvers(modelingLanguage.getResolvingFilters());
+    resolvingConfiguration.addDefaultFilters(modelingLanguage.getResolvingFilters());
     final ModelPath modelPath = new ModelPath(Paths.get(""));
 
     final GlobalScope globalScope = new GlobalScope(modelPath, modelingLanguage, resolvingConfiguration);
@@ -147,7 +130,7 @@ public class ResolvingTest {
 
     final ModelingLanguage modelingLanguage = new EntityLanguage();
     final ResolvingConfiguration resolvingConfiguration = new ResolvingConfiguration();
-    resolvingConfiguration.addTopScopeResolvers(modelingLanguage.getResolvingFilters());
+    resolvingConfiguration.addDefaultFilters(modelingLanguage.getResolvingFilters());
     final ModelPath modelPath = new ModelPath(Paths.get(""));
 
     final GlobalScope globalScope = new GlobalScope(modelPath, modelingLanguage, resolvingConfiguration);
@@ -166,13 +149,13 @@ public class ResolvingTest {
   @Test
   public void testCannotResolveInnerSymbolViaPartialName() {
     final ResolvingConfiguration resolvingConfiguration = new ResolvingConfiguration();
-    resolvingConfiguration.addTopScopeResolvers(new EntityLanguage().getResolvingFilters());
+    resolvingConfiguration.addDefaultFilters(new EntityLanguage().getResolvingFilters());
 
     final ArtifactScope artifactScope = new ArtifactScope(Optional.empty(), "p", new ArrayList<>());
-    artifactScope.setResolvingFilters(resolvingConfiguration.getTopScopeResolvingFilters());
+    artifactScope.setResolvingFilters(resolvingConfiguration.getDefaultFilters());
 
     final EntitySymbol entity = new EntitySymbol("Entity");
-    entity.getMutableSpannedScope().setResolvingFilters(resolvingConfiguration.getTopScopeResolvingFilters());
+    entity.getMutableSpannedScope().setResolvingFilters(resolvingConfiguration.getDefaultFilters());
     artifactScope.add(entity);
 
     final ActionSymbol action = new ActionSymbol("action");

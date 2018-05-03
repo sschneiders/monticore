@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.feature.inheritence;
 
@@ -28,7 +11,6 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-import de.monticore.antlr4.MCConcreteParser.ParserExecution;
 import mc.GeneratorIntegrationsTest;
 import mc.feature.inheritence.inheritence._ast.ASTA;
 import mc.feature.inheritence.inheritence._ast.ASTB;
@@ -58,9 +40,7 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   @Test
   public void test1a() throws IOException {
     
-    InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
+    InheritenceParser parser = new InheritenceParser();    
     Optional<ASTIG> ast = parser.parseIG(new StringReader("a"));
     
     assertTrue(ast.get() instanceof ASTA);
@@ -71,8 +51,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test1b() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIG> ast = parser.parseIG(new StringReader("b"));
     
     assertTrue(ast.get() instanceof ASTB);
@@ -83,8 +61,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test1c() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIG> ast = parser.parseIG(new StringReader("c"));
     
     assertTrue(ast.get() instanceof ASTC);
@@ -100,8 +76,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test2() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIH> ast = parser.parseIH(new StringReader("d"));
     assertTrue(ast.get() instanceof ASTD);
     
@@ -117,8 +91,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test3a() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIM> ast = parser.parseIM(new StringReader("aa"));
     assertTrue(ast.get() instanceof ASTK);
   }
@@ -127,8 +99,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test3b() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIM> ast = parser.parseIM(new StringReader("bb"));
     assertTrue(ast.get() instanceof ASTK);
   }
@@ -137,8 +107,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test3c() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTIM> ast = parser.parseIM(new StringReader("ab"));
     assertTrue(ast.get() instanceof ASTL);
     
@@ -150,8 +118,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test4a() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTXAE> ast = parser.parseXAE(new StringReader("f"));
     assertTrue(ast.get() instanceof ASTXF);
   }
@@ -162,8 +128,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test5a() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     Optional<ASTXAO> ast = parser.parseXAO(new StringReader("p"));
     assertTrue(ast.get() instanceof ASTXP);
     assertFalse(parser.hasErrors());
@@ -174,8 +138,6 @@ public class InheritenceTest extends GeneratorIntegrationsTest {
   public void test5b() throws IOException {
     
     InheritenceParser parser = new InheritenceParser();
-    parser.setParserTarget(ParserExecution.EOF);
-    
     parser.parseXAO(new StringReader("q"));
     assertTrue(parser.hasErrors());
   }

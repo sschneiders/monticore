@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore;
 
@@ -25,6 +8,7 @@ import de.monticore.generating.templateengine.reporting.commons.ReportingReposit
 import de.monticore.generating.templateengine.reporting.reporter.ArtifactGVReporter;
 import de.monticore.generating.templateengine.reporting.reporter.ArtifactGmlReporter;
 import de.monticore.generating.templateengine.reporting.reporter.DetailedReporter;
+import de.monticore.generating.templateengine.reporting.reporter.SuccessfulReporter;
 import de.monticore.generating.templateengine.reporting.reporter.InvolvedFilesReporter;
 import de.monticore.generating.templateengine.reporting.reporter.GeneratedFilesReporter;
 import de.monticore.generating.templateengine.reporting.reporter.HandWrittenCodeReporter;
@@ -46,7 +30,6 @@ import de.monticore.io.paths.IterablePath;
  * Initializes and provides the set of reports desired for MontiCore to the
  * reporting framework.
  *
- * @author (last commit) $Author$
  */
 public class MontiCoreReports implements ReportManagerFactory {
   
@@ -106,6 +89,7 @@ public class MontiCoreReports implements ReportManagerFactory {
     ArtifactGVReporter artifactGV = new ArtifactGVReporter(this.outputDirectory, modelName);
     InputOutputFilesReporter inputOutput = new InputOutputFilesReporter(this.outputDirectory);
     ODReporter objDiagram = new ODReporter(this.outputDirectory, modelName, repository);
+    SuccessfulReporter finishReporter = new SuccessfulReporter(this.outputDirectory, modelName);
 
     reports.addReportEventHandler(summary); // 01_Summary
     reports.addReportEventHandler(generated); // 02_GeneratedFiles
@@ -124,9 +108,10 @@ public class MontiCoreReports implements ReportManagerFactory {
     reports.addReportEventHandler(artifactGml); // 15_ArtifactGml
     reports.addReportEventHandler(artifactGV); // 16_ArtifactGv
     reports.addReportEventHandler(inputOutput); // 17_InputOutputFiles
-    reports.addReportEventHandler(objDiagram); // 18_ObjectDiagram
-    
-    reports.addReportEventHandler(ioReporter); // 18_ObjectDiagram
+    reports.addReportEventHandler(ioReporter); // 18_InvolvedFiles
+    reports.addReportEventHandler(finishReporter); // 19_Successful
+    reports.addReportEventHandler(objDiagram); // ObjectDiagram
+
     
     return reports;
   }

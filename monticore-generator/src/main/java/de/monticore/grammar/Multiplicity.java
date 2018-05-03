@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar;
 
@@ -65,17 +48,17 @@ public enum Multiplicity {
   }
   
   public static Multiplicity multiplicityOfAttributeInAST(ASTAttributeInAST attributeInAST) {
-    if (!attributeInAST.getCard().isPresent()) {
+    if (!attributeInAST.isPresentCard()) {
       return STANDARD;
     }
-    ASTCard cardinality = attributeInAST.getCard().get();
-    if (!cardinality.getMax().isPresent() || cardinality.isUnbounded()
-        || "*".equals(cardinality.getMax().get())
+    ASTCard cardinality = attributeInAST.getCard();
+    if (!cardinality.isPresentMax() || cardinality.isUnbounded()
+        || "*".equals(cardinality.getMax())
         || getMaxCardinality(cardinality) != 1) {
       return LIST;
     }
     else {
-      if (!cardinality.getMin().isPresent() || getMinCardinality(cardinality)==0)  {
+      if (!cardinality.isPresentMin() || getMinCardinality(cardinality)==0)  {
         return OPTIONAL;
       }
     }
@@ -83,11 +66,11 @@ public enum Multiplicity {
   }
   
   private static int getMaxCardinality(ASTCard cardinality) {
-    return Integer.parseInt(cardinality.getMax().get());
+    return Integer.parseInt(cardinality.getMax());
   }
   
   private static int getMinCardinality(ASTCard cardinality) {
-    return Integer.parseInt(cardinality.getMin().get());
+    return Integer.parseInt(cardinality.getMin());
   }
   
   private static Multiplicity multiplicityOfASTNode(ASTNode rootNode, ASTNode astNode) {
@@ -103,9 +86,9 @@ public enum Multiplicity {
     boolean containedInAlternative = false;
     for (ASTNode intermediate: intermediates) {
       if (intermediate instanceof ASTClassProd) {
-        containedInAlternative |= ((ASTClassProd) intermediate).getAlts().size()>1;
+        containedInAlternative |= ((ASTClassProd) intermediate).getAltList().size()>1;
       } else if (intermediate instanceof ASTBlock) {
-        containedInAlternative |= ((ASTBlock) intermediate).getAlts().size()>1;
+        containedInAlternative |= ((ASTBlock) intermediate).getAltList().size()>1;
       }
     }
     return containedInAlternative ? OPTIONAL : STANDARD;
@@ -144,7 +127,7 @@ public enum Multiplicity {
     return getIntermediates(rootNode, astNode).stream()
         .filter(ASTAlt.class::isInstance)
         .map(ASTAlt.class::cast)
-        .flatMap(alt -> alt.getComponents().stream())
+        .flatMap(alt -> alt.getComponentList().stream())
         .filter(ruleComponent -> !ancestorRuleComponents.contains(ruleComponent))
         .flatMap(ruleComponent -> getSuccessors(ruleComponent, ASTNode.class).stream());
   }

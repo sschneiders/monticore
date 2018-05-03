@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -61,7 +44,7 @@ public class AttributeInASTMultiplicityTest {
    */
   @Test
   public void testStarMultiplicity() {
-    List<ASTCDAttribute> attributes = astA.getCDAttributes();
+    List<ASTCDAttribute> attributes = astA.getCDAttributeList();
     assertTrue(TestHelper.isListOfType(attributes.get(0).getType(),
         "mc2cdtransformation.AttributeInASTMultiplicityGrammar.ASTX"));
     /*
@@ -82,14 +65,14 @@ public class AttributeInASTMultiplicityTest {
    */
   @Test
   public void testOptionalCardinality() {
-    List<ASTCDAttribute> attributes = astB.getCDAttributes();
+    List<ASTCDAttribute> attributes = astB.getCDAttributeList();
     String name = typeToString(attributes.get(0).getType());
     assertEquals("Optional", name);
   }
   
   @Test
   public void testOneCardinality() {
-    List<ASTCDAttribute> attributes = astC.getCDAttributes();
+    List<ASTCDAttribute> attributes = astC.getCDAttributeList();
     String name = typeToString(attributes.get(0).getType());
     assertEquals("mc2cdtransformation.AttributeInASTMultiplicityGrammar.ASTZ", name);
   }

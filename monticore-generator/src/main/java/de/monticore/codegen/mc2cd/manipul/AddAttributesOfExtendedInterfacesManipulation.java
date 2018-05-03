@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.manipul;
 
@@ -35,11 +18,6 @@ import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
 import de.monticore.utils.ASTNodes;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public class AddAttributesOfExtendedInterfacesManipulation implements
     UnaryOperator<ASTCDCompilationUnit> {
   
@@ -69,17 +47,17 @@ public class AddAttributesOfExtendedInterfacesManipulation implements
   private void addAttributesOfExtendedInterfaces(ASTCDClass cdClass) {
     List<ASTCDAttribute> attributes = new ArrayList<>();
     // TODO GV:use Cd4Analysis symboltable to get all interfaces recursively
-    for (ASTReferenceType interf : cdClass.getInterfaces()) {
+    for (ASTReferenceType interf : cdClass.getInterfaceList()) {
       if (interf instanceof ASTSimpleReferenceType) {
-        List<String> names = ((ASTSimpleReferenceType) interf).getNames();
+        List<String> names = ((ASTSimpleReferenceType) interf).getNameList();
         String interfaceName = (names.isEmpty())? "" : names.get(names.size()-1);
         if (cDInterfaces.get(interfaceName) != null) {
-          attributes.addAll(cDInterfaces.get(interfaceName).getCDAttributes());
+          attributes.addAll(cDInterfaces.get(interfaceName).getCDAttributeList());
         }
       }
     }
     for (ASTCDAttribute attr : attributes) {
-      cdClass.getCDAttributes().add(attr.deepClone());
+      cdClass.getCDAttributeList().add(attr.deepClone());
     }
   }
   

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.templateclassgenerator.codegen;
 
 import java.io.File;
@@ -28,8 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.monticore.ast.ASTNode;
-import de.monticore.generating.ExtendedGeneratorEngine;
-import de.monticore.generating.GeneratorSetup;
+import de.monticore.generating.ExtendedGeneratorSetup;
+import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.templateclassgenerator.EmptyNode;
 import de.se_rwth.commons.Names;
@@ -104,7 +87,8 @@ public class TemplateClassGenerator {
   private static void doGenerateTemplateClass(File targetFilepath, String fqnTemplateName,
       String targetName,
       List<Parameter> params, Optional<String> result, boolean hasSignature) {
-    final GeneratorSetup setup = new GeneratorSetup(targetFilepath);
+    final ExtendedGeneratorSetup setup = new ExtendedGeneratorSetup();
+    setup.setOutputDirectory(targetFilepath);
     GlobalExtensionManagement glex = new GlobalExtensionManagement();
     glex.setGlobalValue("TemplateClassPackage",
         TemplateClassGeneratorConstants.TEMPLATE_CLASSES_PACKAGE);
@@ -112,7 +96,7 @@ public class TemplateClassGenerator {
         TemplateClassGeneratorConstants.TEMPLATE_CLASSES_SETUP_PACKAGE);
     setup.setGlex(glex);
     TemplateClassHelper helper = new TemplateClassHelper();
-    final ExtendedGeneratorEngine generator = new ExtendedGeneratorEngine(setup);
+    final GeneratorEngine generator = new GeneratorEngine(setup);
     ASTNode node = new EmptyNode();
     String packageNameWithSeperators = TemplateClassGeneratorConstants.TEMPLATE_CLASSES_PACKAGE
         + File.separator
@@ -131,7 +115,7 @@ public class TemplateClassGenerator {
         isMainTemplate, helper);
   }
   
-  public static void generateMainTemplateFactory(ExtendedGeneratorEngine generator,
+  public static void generateMainTemplateFactory(GeneratorEngine generator,
       String packageNameWithSeperators, String targetName, ASTNode node,
       String packageNameWithDots) {
     generator.generate("typesafety.MainTemplateFactory",
@@ -154,7 +138,8 @@ public class TemplateClassGenerator {
       List<String> foundTemplates) {
     String packageName = TemplateClassGeneratorConstants.TEMPLATE_CLASSES_PACKAGE + "."
         + TemplateClassGeneratorConstants.TEMPLATE_CLASSES_SETUP_PACKAGE;
-    final GeneratorSetup setup = new GeneratorSetup(targetFilepath);
+    final ExtendedGeneratorSetup setup = new ExtendedGeneratorSetup();
+    setup.setOutputDirectory(targetFilepath);
     setup.setTracing(false);
     GlobalExtensionManagement glex = new GlobalExtensionManagement();
     glex.setGlobalValue("TemplatePostfix",
@@ -163,7 +148,7 @@ public class TemplateClassGenerator {
         TemplateClassGeneratorConstants.TEMPLATE_CLASSES_PACKAGE);
     glex.setGlobalValue("TemplatesAlias", TemplateClassGeneratorConstants.TEMPLATES_ALIAS);
     setup.setGlex(glex);
-    final ExtendedGeneratorEngine generator = new ExtendedGeneratorEngine(setup);
+    final GeneratorEngine generator = new GeneratorEngine(setup);
     
     String basedir = getBasedirFromModelAndTargetPath(modelPath.getAbsolutePath(),
         targetFilepath.getAbsolutePath());

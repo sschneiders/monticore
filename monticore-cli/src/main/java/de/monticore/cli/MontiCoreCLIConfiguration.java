@@ -1,25 +1,7 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.cli;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,17 +13,12 @@ import de.se_rwth.commons.cli.CLIArguments;
 import de.se_rwth.commons.configuration.Configuration;
 import de.se_rwth.commons.configuration.ConfigurationPropertiesMapContributor;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public final class MontiCoreCLIConfiguration implements Configuration {
   
   public enum Options {
     
     DEV("dev"), DEV_SHORT("d"), CUSTOMLOG("customLog"), CUSTOMLOG_SHORT("cl"), SCRIPT("script"),
-    SCRIPT_SHORT("s");
+    SCRIPT_SHORT("s"), HELP("help"), HELP_SHORT("h");
     
     String name;
     
@@ -225,12 +202,12 @@ public final class MontiCoreCLIConfiguration implements Configuration {
    * 
    * @return the Groovy script file to execute
    */
-  public Optional<File> getScript() {
+  public Optional<String> getScript() {
     if (getAsString(Options.SCRIPT).isPresent()) {
-      return Optional.of(new File(getAsString(Options.SCRIPT).get()));
+      return Optional.of(getAsString(Options.SCRIPT).get());
     }
     if (getAsString(Options.SCRIPT_SHORT).isPresent()) {
-      return Optional.of(new File(getAsString(Options.SCRIPT_SHORT).get()));
+      return Optional.of(getAsString(Options.SCRIPT_SHORT).get());
     }
     return Optional.empty();
   }

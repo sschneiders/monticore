@@ -1,28 +1,13 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.parser.antlr;
 
 import java.util.Optional;
 
+import de.monticore.codegen.GeneratorHelper;
 import de.monticore.codegen.cd2java.ast.AstGeneratorHelper;
 import de.monticore.codegen.mc2cd.MCGrammarSymbolTableHelper;
+import de.monticore.codegen.mc2cd.TransformationHelper;
 import de.monticore.codegen.parser.ParserGeneratorHelper;
 import de.monticore.grammar.HelperGrammar;
 import de.monticore.grammar.grammar._ast.ASTAlt;
@@ -49,7 +34,7 @@ public class ASTConstructionActions {
   public String getConstantInConstantGroupMultipleEntries(ASTConstant constant,
       ASTConstantGroup constgroup) {
     String tmp = "";
-    if (constgroup.getUsageName().isPresent()) {
+    if (constgroup.isPresentUsageName()) {
       String constfile;
       String constantname;
       Optional<MCGrammarSymbol> ruleGrammar = MCGrammarSymbolTableHelper
@@ -67,7 +52,7 @@ public class ASTConstructionActions {
       tmp = "_aNode.set%uname%(%constfile%.%constantname%);";
       
       tmp = tmp.replaceAll("%uname%",
-          StringTransformations.capitalize(constgroup.getUsageName().get()));
+          StringTransformations.capitalize(constgroup.getUsageName()));
       
       tmp = tmp.replaceAll("%constfile%", constfile);
 
@@ -85,19 +70,19 @@ public class ASTConstructionActions {
       ASTConstantGroup constgroup) {
     String tmp = "";
     
-    if (constgroup.getUsageName().isPresent()) {
+    if (constgroup.isPresentUsageName()) {
       // Add as attribute to AST
       tmp = "_aNode.set%uname%(true);";
       
       tmp = tmp.replaceAll("%uname%",
-          StringTransformations.capitalize(constgroup.getUsageName().get()));
+          StringTransformations.capitalize(constgroup.getUsageName()));
     }
     else {
-      if (constgroup.getConstants().size() == 1) {
+      if (constgroup.getConstantList().size() == 1) {
         // both == null and #constants == 1 -> use constant string as name
         tmp = "_aNode.set%cname%(true);";
         tmp = tmp.replaceAll("%cname%", StringTransformations.capitalize(HelperGrammar
-            .getAttributeNameForConstant(constgroup.getConstants().get(0))));
+            .getAttributeNameForConstant(constgroup.getConstantList().get(0))));
       }
       else {
         // both == null and #constants > 1 -> user wants to ignore token in AST
@@ -171,7 +156,7 @@ public class ASTConstructionActions {
     
     // Replace templates
     tmp = tmp.replaceAll("%u_usage%",
-        StringTransformations.capitalize(HelperGrammar.getUsuageName(a)));
+        StringTransformations.capitalize(HelperGrammar.getListName(a)));
     tmp = tmp.replaceAll("%tmp%", tmpname);
     
     return tmp;
@@ -187,7 +172,7 @@ public class ASTConstructionActions {
     
     // Replace templates
     tmp = tmp.replaceAll("%u_usage%",
-        StringTransformations.capitalize(HelperGrammar.getUsuageName(a)));
+        StringTransformations.capitalize(HelperGrammar.getListName(a)));
     tmp = tmp.replaceAll("%tmp%", parserGenHelper.getTmpVarNameForAntlrCode(a));
     
     return tmp;
@@ -235,11 +220,11 @@ public class ASTConstructionActions {
 
     String tmp = "_aNode.set%u_usage%(\"%text%\");";
 
-    if (!a.getUsageName().isPresent()) {
+    if (!a.isPresentUsageName()) {
       return "";
     }
     // Replace templates
-    tmp = tmp.replaceAll("%u_usage%", StringTransformations.capitalize(a.getUsageName().get()));
+    tmp = tmp.replaceAll("%u_usage%", StringTransformations.capitalize(a.getUsageName()));
     tmp = tmp.replaceAll("%text%", a.getName());
 
     return tmp;
@@ -248,14 +233,19 @@ public class ASTConstructionActions {
 
   public String getActionForTerminalIteratedAttribute(ASTTerminal a) {
 
-    if (!a.getUsageName().isPresent()) {
+    if (!a.isPresentUsageName()) {
       return "";
     }
 
     String tmp = "_aNode.get%u_usage%().add(\"%text%\");";
 
     // Replace templates
-    tmp = tmp.replaceAll("%u_usage%", StringTransformations.capitalize(a.getUsageName().get()));
+    // TODO MB : Find better solution
+    String usageName = StringTransformations.capitalize(a.getUsageName());
+    if (usageName.endsWith(TransformationHelper.LIST_SUFFIX)) {
+      usageName = usageName.substring(0, usageName.length()-TransformationHelper.LIST_SUFFIX.length());    
+    }
+    tmp = tmp.replaceAll("%u_usage%", StringTransformations.capitalize(usageName+ GeneratorHelper.GET_SUFFIX_LIST));
     tmp = tmp.replaceAll("%text%", a.getName());
 
     return tmp;

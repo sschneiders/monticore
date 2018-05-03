@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd;
 
@@ -25,8 +8,6 @@ import static de.monticore.codegen.GeneratorHelper.AST_DOT_PACKAGE_SUFFIX_DOT;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -59,23 +40,17 @@ import de.monticore.grammar.symboltable.MCProdComponentSymbol;
 import de.monticore.grammar.symboltable.MCProdSymbol;
 import de.monticore.io.paths.IterablePath;
 import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.symboltable.GlobalScope;
 import de.monticore.types.types._ast.ASTPrimitiveType;
 import de.monticore.types.types._ast.ASTSimpleReferenceType;
 import de.monticore.types.types._ast.ASTType;
 import de.monticore.types.types._ast.ASTTypeArgument;
 import de.monticore.types.types._ast.ASTVoidType;
 import de.monticore.types.types._ast.TypesNodeFactory;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCD4AnalysisNode;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDAttribute;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDClass;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTCDParameter;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTModifier;
-import de.monticore.umlcd4a.cd4analysis._ast.ASTStereoValue;
-import de.monticore.umlcd4a.cd4analysis._ast.CD4AnalysisNodeFactory;
+import de.monticore.umlcd4a.cd4analysis._ast.*;
 import de.monticore.umlcd4a.cd4analysis._parser.CD4AnalysisParser;
 import de.monticore.umlcd4a.prettyprint.CDPrettyPrinterConcreteVisitor;
+import de.monticore.umlcd4a.symboltable.CDSymbol;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -84,11 +59,11 @@ public final class TransformationHelper {
   
   public static final String DEFAULT_FILE_EXTENSION = ".java";
   
-  public final static String GENERATED_CLASS_SUFFIX = "TOP";
-  
   public static final String AST_PREFIX = "AST";
   
   public static final String AST_PACKAGE_SUFFIX = "_ast";
+  
+  public static final String LIST_SUFFIX = "s";
   
   private TransformationHelper() {
     // noninstantiable
@@ -101,7 +76,7 @@ public final class TransformationHelper {
   public static String typeToString(ASTType type) {
     if (type instanceof ASTSimpleReferenceType) {
       return Names.getQualifiedName(
-          ((ASTSimpleReferenceType) type).getNames());
+          ((ASTSimpleReferenceType) type).getNameList());
     }
     else if (type instanceof ASTPrimitiveType) {
       return type.toString();
@@ -136,42 +111,47 @@ public final class TransformationHelper {
         .getIntermediates(root, successor);
     for (ASTNode ancestor : Lists.reverse(intermediates)) {
       if (ancestor instanceof ASTConstantGroup) {
-        return Optional.ofNullable(((ASTConstantGroup) ancestor)
-            .getUsageName().orElse(null));
+        return ((ASTConstantGroup) ancestor)
+            .getUsageNameOpt();
       }
       if (ancestor instanceof ASTNonTerminal) {
-        return Optional.ofNullable(((ASTNonTerminal) ancestor)
-            .getUsageName().orElse(null));
+        return ((ASTNonTerminal) ancestor)
+            .getUsageNameOpt();
       }
       if (ancestor instanceof ASTNonTerminalSeparator) {
-        return Optional.ofNullable(((ASTNonTerminalSeparator) ancestor)
-            .getUsageName().orElse(null));
+        return ((ASTNonTerminalSeparator) ancestor)
+            .getUsageNameOpt();
       }
       if (ancestor instanceof ASTTerminal) {
-        return Optional.ofNullable(((ASTTerminal) ancestor).getUsageName()
-            .orElse(null));
+        return ((ASTTerminal) ancestor).getUsageNameOpt();
       }
       if (ancestor instanceof ASTAttributeInAST) {
-        return ((ASTAttributeInAST) ancestor).getName();
+        return ((ASTAttributeInAST) ancestor).getNameOpt();
       }
     }
     return Optional.empty();
   }
   
   public static Optional<String> getName(ASTNode node) {
-    try {
-      Method getNameMethod = node.getClass().getMethod("getName");
-      String name = (String) getNameMethod.invoke(node);
-      return Optional.ofNullable(name);
+    if (node instanceof ASTNonTerminal) {
+      return Optional.of(((ASTNonTerminal) node)
+          .getName());
     }
-    catch (ClassCastException
-           | InvocationTargetException
-           | IllegalAccessException
-           | IllegalArgumentException
-           | NoSuchMethodException
-           | SecurityException e) {
-      return Optional.empty();
+    if (node instanceof ASTConstant) {
+      return Optional.of(((ASTConstant) node)
+          .getName());
     }
+    if (node instanceof ASTNonTerminalSeparator) {
+      return Optional.of(((ASTNonTerminalSeparator) node)
+          .getName());
+    }
+    if (node instanceof ASTTerminal) {
+      return Optional.of(((ASTTerminal) node).getName());
+    }
+    if (node instanceof ASTAttributeInAST) {
+      return ((ASTAttributeInAST) node).getNameOpt();
+    }
+    return Optional.empty();
   }
   
   public static ASTModifier createFinalModifier() {
@@ -201,6 +181,13 @@ public final class TransformationHelper {
     return modifier;
   }
   
+  public static ASTModifier createAbstractModifier() {
+    ASTModifier modifier = CD4AnalysisNodeFactory.createASTModifier();
+    modifier.setAbstract(true);
+    return modifier;
+  }
+  
+  
   public static ASTModifier createProtectedModifier() {
     ASTModifier modifier = CD4AnalysisNodeFactory.createASTModifier();
     modifier.setProtected(true);
@@ -221,7 +208,7 @@ public final class TransformationHelper {
     // set the name of the type
     ArrayList<String> name = new ArrayList<String>();
     name.add(typeName);
-    reference.setNames(name);
+    reference.setNameList(name);
     
     // set generics
     if (generics.length > 0) {
@@ -252,7 +239,7 @@ public final class TransformationHelper {
   public static String getAstPackageName(
       ASTCDCompilationUnit cdCompilationUnit) {
     String packageName = Names
-        .getQualifiedName(cdCompilationUnit.getPackage());
+        .getQualifiedName(cdCompilationUnit.getPackageList());
     if (!packageName.isEmpty()) {
       packageName = packageName + ".";
     }
@@ -263,7 +250,7 @@ public final class TransformationHelper {
   public static String getPackageName(
       ASTCDCompilationUnit cdCompilationUnit) {
     String packageName = Names
-        .getQualifiedName(cdCompilationUnit.getPackage());
+        .getQualifiedName(cdCompilationUnit.getPackageList());
     if (!packageName.isEmpty()) {
       packageName = packageName + ".";
     }
@@ -294,9 +281,9 @@ public final class TransformationHelper {
     for (MCProdSymbol type : grammarSymbol.getProds()) {
       if (type.isEnum() && type.getAstNode().isPresent()
           && type.getAstNode().get() instanceof ASTEnumProd) {
-        for (ASTConstant enumValue : ((ASTEnumProd) type.getAstNode().get()).getConstants()) {
-          String humanName = enumValue.getHumanName().isPresent()
-              ? enumValue.getHumanName().get()
+        for (ASTConstant enumValue : ((ASTEnumProd) type.getAstNode().get()).getConstantList()) {
+          String humanName = enumValue.isPresentHumanName()
+              ? enumValue.getHumanName()
               : enumValue.getName();
           constants.add(humanName);
         }
@@ -336,11 +323,32 @@ public final class TransformationHelper {
     return result;
   }
   
+  /**
+   * Get the corresponding CD for MC grammar if exists
+   *
+   * @param ast
+   * @return
+   */
+  public static Optional<ASTCDCompilationUnit> getCDforGrammar(GlobalScope globalScope,
+      ASTMCGrammar ast) {
+    final String qualifiedCDName = Names.getQualifiedName(ast.getPackageList(), ast.getName());
+    
+    Optional<CDSymbol> cdSymbol = globalScope.<CDSymbol> resolveDown(
+        qualifiedCDName, CDSymbol.KIND);
+
+    if (cdSymbol.isPresent() && cdSymbol.get().getEnclosingScope().getAstNode().isPresent()) {
+      Log.debug("Got existed symbol table for " + cdSymbol.get().getFullName(), TransformationHelper.class.getName());
+      return Optional.of((ASTCDCompilationUnit) cdSymbol.get().getEnclosingScope().getAstNode().get());
+    }
+    
+   return Optional.empty();
+  }
+  
   public static String getQualifiedTypeNameAndMarkIfExternal(
       ASTGenericType ruleReference,
       ASTMCGrammar grammar, ASTCDClass cdClass) {
     
-    Optional<MCProdSymbol> typeSymbol = resolveAstRuleType(ruleReference);
+    Optional<MCProdSymbol> typeSymbol = resolveAstRuleType(grammar, ruleReference);
     
     String qualifiedRuleName = getQualifiedAstName(
         typeSymbol, ruleReference, grammar);
@@ -358,7 +366,7 @@ public final class TransformationHelper {
       ASTGenericType ruleReference,
       ASTMCGrammar grammar, ASTCDInterface interf) {
     
-    Optional<MCProdSymbol> typeSymbol = resolveAstRuleType(ruleReference);
+    Optional<MCProdSymbol> typeSymbol = resolveAstRuleType(grammar, ruleReference);
     
     String qualifiedRuleName = getQualifiedAstName(
         typeSymbol, ruleReference, grammar);
@@ -371,13 +379,13 @@ public final class TransformationHelper {
     return qualifiedRuleName;
   }
   
-  public static Optional<MCProdSymbol> resolveAstRuleType(ASTGenericType type) {
-    if (!type.getNames().isEmpty()) {
-      String simpleName = type.getNames().get(type.getNames().size() - 1);
+  public static Optional<MCProdSymbol> resolveAstRuleType(ASTNode node, ASTGenericType type) {
+    if (!type.getNameList().isEmpty()) {
+      String simpleName = type.getNameList().get(type.getNameList().size() - 1);
       if (!simpleName.startsWith(AST_PREFIX)) {
         return Optional.empty();
       }
-      Optional<MCProdSymbol> ruleSymbol = MCGrammarSymbolTableHelper.resolveRule(type,
+      Optional<MCProdSymbol> ruleSymbol = MCGrammarSymbolTableHelper.resolveRule(node,
           simpleName
               .substring(AST_PREFIX.length()));
       if (ruleSymbol.isPresent() && istPartOfGrammar(ruleSymbol.get())) {
@@ -405,8 +413,8 @@ public final class TransformationHelper {
     return getGrammarName(rule) + ".";
   }
   
-  public static boolean checkIfExternal(ASTGenericType type) {
-    return !resolveAstRuleType(type).isPresent();
+  public static boolean checkIfExternal(ASTNode node, ASTGenericType type) {
+    return !resolveAstRuleType(node, type).isPresent();
   }
   
   public static String getQualifiedAstName(
@@ -415,7 +423,7 @@ public final class TransformationHelper {
     if (!typeSymbol.isPresent()) {
       return type.getTypeName();
     }
-    if (type.getNames().size() > 1) {
+    if (type.getNameList().size() > 1) {
       return type.getTypeName();
     }
     String refGrammarName = getGrammarName(typeSymbol.get());
@@ -428,42 +436,50 @@ public final class TransformationHelper {
   
   public static void addStereoType(ASTCDClass type, String stereotypeName,
       String stereotypeValue) {
-    if (!type.getModifier().isPresent()) {
+    if (!type.getModifierOpt().isPresent()) {
       type.setModifier(CD4AnalysisNodeFactory.createASTModifier());
     }
-    addStereotypeValue(type.getModifier().get(),
+    addStereotypeValue(type.getModifierOpt().get(),
         stereotypeName, stereotypeValue);
   }
   
   public static void addStereoType(ASTCDInterface type,
       String stereotypeName,
       String stereotypeValue) {
-    if (!type.getModifier().isPresent()) {
+    if (!type.isPresentModifier()) {
       type.setModifier(CD4AnalysisNodeFactory.createASTModifier());
     }
-    addStereotypeValue(type.getModifier().get(),
+    addStereotypeValue(type.getModifier(),
         stereotypeName, stereotypeValue);
   }
   
   public static void addStereoType(ASTCDAttribute attribute,
       String stereotypeName,
       String stereotypeValue) {
-    if (!attribute.getModifier().isPresent()) {
+    if (!attribute.isPresentModifier()) {
       attribute.setModifier(CD4AnalysisNodeFactory.createASTModifier());
     }
-    addStereotypeValue(attribute.getModifier().get(),
+    addStereotypeValue(attribute.getModifier(),
+        stereotypeName, stereotypeValue);
+  }
+
+  public static void addStereoType(ASTCDMethod method,
+                                   String stereotypeName,
+                                   String stereotypeValue) {
+    method.setModifier(CD4AnalysisNodeFactory.createASTModifier());
+    addStereotypeValue(method.getModifier(),
         stereotypeName, stereotypeValue);
   }
   
   public static void addStereotypeValue(ASTModifier astModifier,
       String stereotypeName,
       String stereotypeValue) {
-    if (!astModifier.getStereotype().isPresent()) {
+    if (!astModifier.isPresentStereotype()) {
       astModifier.setStereotype(CD4AnalysisNodeFactory
           .createASTStereotype());
     }
-    List<ASTStereoValue> stereoValueList = astModifier.getStereotype().get()
-        .getValues();
+    List<ASTStereoValue> stereoValueList = astModifier.getStereotype()
+        .getValueList();
     ASTStereoValue stereoValue = CD4AnalysisNodeFactory
         .createASTStereoValue();
     stereoValue.setName(stereotypeName);

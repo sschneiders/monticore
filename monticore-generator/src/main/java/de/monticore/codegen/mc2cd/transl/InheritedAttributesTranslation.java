@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -70,7 +53,7 @@ public class InheritedAttributesTranslation implements
         .entrySet()) {
       for (ASTNonTerminal nonTerminal : entry.getValue()) {
         ASTCDAttribute cdAttribute = createCDAttribute(link.source(), entry.getKey());
-        link.target().getCDAttributes().add(cdAttribute);
+        link.target().getCDAttributeList().add(cdAttribute);
         new Link<>(nonTerminal, cdAttribute, link);
       }
     }
@@ -81,7 +64,7 @@ public class InheritedAttributesTranslation implements
         link.source()).entrySet()) {
       for (MCProdAttributeSymbol attributeInAST : entry.getValue()) {
         ASTCDAttribute cdAttribute = createCDAttribute(link.source(), entry.getKey());
-        link.target().getCDAttributes().add(cdAttribute);
+        link.target().getCDAttributeList().add(cdAttribute);
         if (attributeInAST.getAstNode().isPresent()) {
           new Link<>(attributeInAST.getAstNode().get(), cdAttribute, link);
         }

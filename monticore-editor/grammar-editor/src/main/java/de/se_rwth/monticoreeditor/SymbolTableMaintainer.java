@@ -1,19 +1,5 @@
-/*******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *  
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- *******************************************************************************/
+/* (c)  https://github.com/MontiCore/monticore */
+
 package de.se_rwth.monticoreeditor;
 
 import java.nio.file.Path;
@@ -34,7 +20,6 @@ import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Scopes;
-import de.monticore.symboltable.references.FailedLoadingSymbol;
 import de.se_rwth.commons.logging.Log;
 import de.se_rwth.langeditor.modelstates.ModelState;
 
@@ -56,7 +41,6 @@ final class SymbolTableMaintainer {
   void acceptModelState(ModelState modelState) {
     ASTNode rootNode = modelState.getRootNode();
     if (rootNode instanceof ASTMCGrammar) {
-      try {
         ASTMCGrammar mcGrammar = (ASTMCGrammar) rootNode;
         if (!mcGrammar.getSymbol().isPresent()) {
           grammarLanguage.getSymbolTableCreator(new ResolvingConfiguration(), globalScope)
@@ -66,10 +50,6 @@ final class SymbolTableMaintainer {
                 setNewSuperGrammarScope(newScope);
               });
         }
-      }
-      catch (FailedLoadingSymbol e) {
-        e.printStackTrace();
-      }
     }
   }
   

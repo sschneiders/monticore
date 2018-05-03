@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd;
 
@@ -53,7 +36,6 @@ import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTLexActionOrPredicate;
 import de.monticore.grammar.grammar._ast.ASTLexProd;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
-import de.monticore.grammar.prettyprint.Grammar_WithConceptsPrettyPrinter;
 import de.monticore.grammar.symboltable.MCGrammarSymbol;
 import de.monticore.grammar.symboltable.MCProdAttributeSymbol;
 import de.monticore.grammar.symboltable.MCProdComponentSymbol;
@@ -62,7 +44,6 @@ import de.monticore.grammar.symboltable.MCProdSymbolReference;
 import de.monticore.grammar.symboltable.MontiCoreGrammarLanguage;
 import de.monticore.grammar.symboltable.MontiCoreGrammarSymbolTableCreator;
 import de.monticore.io.paths.ModelPath;
-import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolvingConfiguration;
@@ -81,12 +62,9 @@ public class MCGrammarSymbolTableHelper {
     ResolvingConfiguration resolvingConfiguration = new ResolvingConfiguration();
     resolvingConfiguration.addDefaultFilters(grammarLanguage.getResolvingFilters());
     
-    Grammar_WithConceptsPrettyPrinter prettyPrinter = new Grammar_WithConceptsPrettyPrinter(
-        new IndentPrinter());
-    
     MutableScope globalScope = new GlobalScope(modelPath, grammarLanguage, resolvingConfiguration);
     MontiCoreGrammarSymbolTableCreator symbolTableCreator = new MontiCoreGrammarSymbolTableCreator(
-        resolvingConfiguration, globalScope, prettyPrinter);
+        resolvingConfiguration, globalScope);
     
     // Create Symbol Table
     symbolTableCreator.createFromAST(rootNode);
@@ -184,6 +162,7 @@ public class MCGrammarSymbolTableHelper {
   
   private static Set<Scope> getAllScopes(ASTNode astNode) {
     Set<Scope> ret = Sets.newHashSet();
+    astNode.getSpannedScope().ifPresent(s -> ret.add(s));
     for (Symbol s : getAllSubSymbols(astNode)) {
       for (Scope l : listTillNull(s.getEnclosingScope(),
           childScope -> childScope.getEnclosingScope().orElse(null))) {
@@ -354,13 +333,13 @@ public class MCGrammarSymbolTableHelper {
   
   public static Optional<String> getConstantGroupName(ASTConstantGroup ast) {
     // setAttributeMinMax(a.getIteration(), att);
-    if (ast.getUsageName().isPresent()) {
-      return ast.getUsageName();
+    if (ast.isPresentUsageName()) {
+      return ast.getUsageNameOpt();
     }
     // derive attribute name from constant entry (but only if we have
     // one entry!)
-    else if (ast.getConstants().size() == 1) {
-      return Optional.of(HelperGrammar.getAttributeNameForConstant(ast.getConstants().get(0)));
+    else if (ast.getConstantList().size() == 1) {
+      return Optional.of(HelperGrammar.getAttributeNameForConstant(ast.getConstantList().get(0)));
     }
     
     Log.error("0xA2345 The name of the constant group could't be ascertained",
@@ -385,8 +364,7 @@ public class MCGrammarSymbolTableHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param astNode
    * @param currentSymbol
    * @return
@@ -426,8 +404,7 @@ public class MCGrammarSymbolTableHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param superType
    * @return
    */
@@ -568,8 +545,7 @@ public class MCGrammarSymbolTableHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param mcProdSymbolReference
    * @param newOne
    * @return
@@ -581,8 +557,7 @@ public class MCGrammarSymbolTableHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param prodComponent
    * @return
    */
@@ -599,22 +574,6 @@ public class MCGrammarSymbolTableHelper {
     return set.size() > 1;
   }
   
-  public static boolean isAttributeDerived(MCProdAttributeSymbol attrSymbol) {
-    return attrSymbol.getAstNode().isPresent()
-        && attrSymbol.getAstNode().get() instanceof ASTAttributeInAST
-        && isAttributeDerived((ASTAttributeInAST) attrSymbol.getAstNode().get());
-  }
-  
-  /**
-   * TODO: Write me!
-   * 
-   * @param ast
-   * @return
-   */
-  public static boolean isAttributeDerived(ASTAttributeInAST ast) {
-    return ast.isDerived() && ast.getBody().isPresent();
-  }
-  
   public static boolean isAttributeIterated(MCProdAttributeSymbol attrSymbol) {
     return attrSymbol.getAstNode().isPresent()
         && attrSymbol.getAstNode().get() instanceof ASTAttributeInAST
@@ -622,16 +581,15 @@ public class MCGrammarSymbolTableHelper {
   }
   
   /**
-   * TODO: Write me!
-   * 
+   *
    * @param ast
    * @return
    */
   public static boolean isAttributeIterated(ASTAttributeInAST ast) {
-    if (!ast.getCard().isPresent()) {
+    if (!ast.isPresentCard()) {
       return false;
     }
-    if (ast.getCard().get().isUnbounded()) {
+    if (ast.getCard().isUnbounded()) {
       return true;
     }
     Optional<Integer> max = getMax(ast);
@@ -647,9 +605,9 @@ public class MCGrammarSymbolTableHelper {
   }
   
   public static Optional<Integer> getMax(ASTAttributeInAST ast) {
-    if (ast.getCard().isPresent()
-        && ast.getCard().get().getMax().isPresent()) {
-      String max = ast.getCard().get().getMax().get();
+    if (ast.isPresentCard()
+        && ast.getCard().isPresentMax()) {
+      String max = ast.getCard().getMax();
       if ("*".equals(max)) {
         return Optional.of(GeneratorHelper.STAR);
       }
@@ -676,9 +634,9 @@ public class MCGrammarSymbolTableHelper {
   }
   
   public static Optional<Integer> getMin(ASTAttributeInAST ast) {
-    if (ast.getCard().isPresent()
-        && ast.getCard().get().getMin().isPresent()) {
-      String min = ast.getCard().get().getMin().get();
+    if (ast.isPresentCard()
+        && ast.getCard().isPresentMin()) {
+      String min = ast.getCard().getMin();
       try {
         int x = Integer.parseInt(min);
         return Optional.of(x);

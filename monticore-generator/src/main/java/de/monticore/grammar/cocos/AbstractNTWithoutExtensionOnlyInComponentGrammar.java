@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar.cocos;
 
@@ -42,10 +25,10 @@ public class AbstractNTWithoutExtensionOnlyInComponentGrammar implements Grammar
   @Override
   public void check(ASTMCGrammar a) {
     if (!a.isComponent()) {
-      for (ASTProd p : a.getAbstractProds()) {
+      for (ASTProd p : a.getAbstractProdList()) {
         boolean extensionFound = false;
-        for (ASTAbstractProd ep : a.getAbstractProds()) {
-          for (ASTRuleReference r : ep.getSuperRule()) {
+        for (ASTAbstractProd ep : a.getAbstractProdList()) {
+          for (ASTRuleReference r : ep.getSuperRuleList()) {
             if (p.getName().equals(r.getName())) {
               extensionFound = true;
               break;
@@ -56,8 +39,8 @@ public class AbstractNTWithoutExtensionOnlyInComponentGrammar implements Grammar
           }
         }
         if (!extensionFound) {
-          for (ASTClassProd ep : a.getClassProds()) {
-            for (ASTRuleReference r : ep.getSuperRule()) {
+          for (ASTClassProd ep : a.getClassProdList()) {
+            for (ASTRuleReference r : ep.getSuperRuleList()) {
               if (p.getName().equals(r.getName())) {
                 extensionFound = true;
                 break;

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar.cocos;
 
@@ -36,11 +19,11 @@ public class AbstractNTOnlyExtendsOneNTOrClass implements GrammarASTAbstractProd
 
   @Override
   public void check(ASTAbstractProd a) {
-    if (a.getSuperRule().size()>1) {
+    if (a.getSuperRuleList().size()>1) {
       Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, a.getName(), "extend", "nonterminal"),
               a.get_SourcePositionStart());
     }
-    if(a.getASTSuperClass().size()>1){
+    if(a.getASTSuperClassList().size()>1){
       Log.error(String.format(ERROR_CODE + ERROR_MSG_FORMAT, a.getName(), "astextend", "class"),
               a.get_SourcePositionStart());
     }

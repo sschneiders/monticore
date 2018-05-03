@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar.cocos;
 
@@ -51,19 +34,19 @@ public class OverridingNTs implements GrammarASTMCGrammarCoCo {
     List<MCGrammarSymbol> grammarSymbols =  grammarSymbol.getSuperGrammarSymbols();
 
     for(MCGrammarSymbol s: grammarSymbols) {
-      for (ASTEnumProd p : a.getEnumProds()) {
+      for (ASTEnumProd p : a.getEnumProdList()) {
           doCheck(s.getProd(p.getName()), "enum");
       }
-      for (ASTExternalProd p : a.getExternalProds()) {
+      for (ASTExternalProd p : a.getExternalProdList()) {
           doCheck(s.getProd(p.getName()), "external");
       }
-      for (ASTInterfaceProd p : a.getInterfaceProds()) {
+      for (ASTInterfaceProd p : a.getInterfaceProdList()) {
           doCheck(s.getProd(p.getName()), "interface");
       }
-      for (ASTLexProd p : a.getLexProds()) {
+      for (ASTLexProd p : a.getLexProdList()) {
           doCheck(s.getProd(p.getName()), "lexical");
       }
-      for (ASTAbstractProd p : a.getAbstractProds()) {
+      for (ASTAbstractProd p : a.getAbstractProdList()) {
         doCheck(s.getProd(p.getName()), "abstract");
       }
     }

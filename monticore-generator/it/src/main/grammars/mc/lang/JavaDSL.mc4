@@ -1,25 +1,8 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.lang;
 
-grammar JavaDSL extends mc.grammar.types.Types {
+grammar JavaDSL extends mc.grammar.types.ItTestTypes {
 
 // starting point for parsing a java file
 CompilationUnit
@@ -388,7 +371,7 @@ DefaultSwitchLabel implements SwitchLabel
 
 Expression implements ElementValue, VariableInitializer
     =   PrimaryExpression
-    |   Expression "." Name&
+    |   Expression "." Name
     |   Expression "." ["this"]
     |   Expression "." InnerCreator
     |   Expression "." "super" SuperSuffix
@@ -466,7 +449,7 @@ PrimaryExpression
     |   ["this"]
     |   ["super"]
     |   Literal
-    |   Name&
+    |   Name
     |   ReturnType "." "class"
     |   ExplicitGenericInvocation
     |   NonWildcardTypeArguments "this" Arguments
@@ -498,11 +481,11 @@ CreatedName
     ;
 
 IdentifierAndTypeArgumentsOrDiamond
-    =   Name& TypeArgumentsOrDiamond?
+    =   Name TypeArgumentsOrDiamond?
     ;
 
 InnerCreator
-    =   "new" NonWildcardTypeArguments? Name& NonWildcardTypeArgumentsOrDiamond? ClassCreatorRest
+    =   "new" NonWildcardTypeArguments? Name NonWildcardTypeArgumentsOrDiamond? ClassCreatorRest
     ;
 
 ClassCreatorRest

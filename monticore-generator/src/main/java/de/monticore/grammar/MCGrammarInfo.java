@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar;
 
@@ -126,8 +109,8 @@ public class MCGrammarInfo {
     grammarsToHandle.addAll(MCGrammarSymbolTableHelper.getAllSuperGrammars(grammarSymbol));
     for (MCGrammarSymbol grammar : grammarsToHandle) {
       for (ASTClassProd classProd : ((ASTMCGrammar) grammar.getAstNode().get())
-          .getClassProds()) {
-        for (ASTRuleReference superRule : classProd.getSuperRule()) {
+          .getClassProdList()) {
+        for (ASTRuleReference superRule : classProd.getSuperRuleList()) {
           Optional<MCProdSymbol> prodByName = grammarSymbol
               .getProdWithInherited(superRule.getTypeName());
           if (prodByName.isPresent()) {
@@ -139,14 +122,14 @@ public class MCGrammarInfo {
           }
         }
         
-        for (ASTRuleReference ruleref : classProd.getSuperInterfaceRule()) {
+        for (ASTRuleReference ruleref : classProd.getSuperInterfaceRuleList()) {
           Optional<MCProdSymbol> prodByName = grammarSymbol
               .getProdWithInherited(ruleref.getTypeName());
           if (prodByName.isPresent()) {
             addSubrule(prodByName.get().getName(), HelperGrammar.getRuleName(classProd), ruleref);
           }
           else {
-            Log.error("0xA2111 Undefined rule: " + ruleref.getTypeName(),
+            Log.error("0xA2112 Undefined rule: " + ruleref.getTypeName(),
                 ruleref.get_SourcePositionStart());
           }
         }
@@ -167,8 +150,8 @@ public class MCGrammarInfo {
     grammarsToHandle.addAll(MCGrammarSymbolTableHelper.getAllSuperGrammars(grammarSymbol));
     for (MCGrammarSymbol grammar : grammarsToHandle) {
       for (ASTInterfaceProd interfaceProd : ((ASTMCGrammar) grammar.getAstNode().get())
-          .getInterfaceProds()) {
-        for (ASTRuleReference superRule : interfaceProd.getSuperInterfaceRule()) {
+          .getInterfaceProdList()) {
+        for (ASTRuleReference superRule : interfaceProd.getSuperInterfaceRuleList()) {
           Optional<MCProdSymbol> prodByName = grammar
               .getProdWithInherited(superRule.getTypeName());
           if (prodByName.isPresent()) {
@@ -189,39 +172,29 @@ public class MCGrammarInfo {
   }
   
 
-  private boolean isProdLeftRecursive(MCProdSymbol ruleByName, ASTClassProd ast) {
+  private Collection<String> addLeftRecursiveRuleForProd(ASTClassProd ast) {
     List<ASTProd> superProds = GeneratorHelper.getAllSuperProds(ast);
     Collection<String> names = new ArrayList<>();
     superProds.forEach(s -> names.add(s.getName()));
     DirectLeftRecursionDetector detector = new DirectLeftRecursionDetector();
-    for (ASTAlt alt : ast.getAlts()) {
+    for (ASTAlt alt : ast.getAltList()) {
       if (detector.isAlternativeLeftRecursive(alt, names)) {
-        return true;
+        names.add(ast.getName());
+        return names;
       }
     }
-    return false;
+    return Lists.newArrayList();
   }
   
   private void addLeftRecursiveRules() {
     Set<MCGrammarSymbol> grammarsToHandle = Sets
         .newLinkedHashSet(Arrays.asList(grammarSymbol));
     grammarsToHandle.addAll(MCGrammarSymbolTableHelper.getAllSuperGrammars(grammarSymbol));
-    Collection<MCProdSymbol> basicRecursiveRules = new HashSet<>();
     for (MCGrammarSymbol grammar : grammarsToHandle) {
-      for (ASTClassProd classProd : ((ASTMCGrammar) grammar.getAstNode().get()).getClassProds()) {
-        MCProdSymbol rule = (MCProdSymbol) classProd.getSymbol().get();
-        if (isProdLeftRecursive((MCProdSymbol) classProd.getSymbol().get(), classProd)) {
-          basicRecursiveRules.add(rule);
-        }
-      }
-      
-      for (MCProdSymbol rule: basicRecursiveRules) {
-        leftRecursiveRules.add(rule.getName());
-        rule.getSuperInterfaceProds().stream().forEach(s -> leftRecursiveRules.add(s.getName()));
-        rule.getSuperProds().stream().forEach(s -> leftRecursiveRules.add(s.getName()));
+      for (ASTClassProd classProd : ((ASTMCGrammar) grammar.getAstNode().get()).getClassProdList()) {
+        leftRecursiveRules.addAll(addLeftRecursiveRuleForProd(classProd));
       }
     }
-    
   }
   
   /**

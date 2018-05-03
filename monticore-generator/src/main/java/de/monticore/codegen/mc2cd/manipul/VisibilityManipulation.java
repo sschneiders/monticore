@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.manipul;
 
@@ -62,7 +45,7 @@ final class VisibilityManipulation implements UnaryOperator<ASTCDCompilationUnit
    * Sets the visibility of every attribute to protected.
    */
   private void setProtectedVisibility(ASTCDAttribute cdAttribute) {
-    Optional<ASTModifier> previousModifier = cdAttribute.getModifier();
+    Optional<ASTModifier> previousModifier = cdAttribute.getModifierOpt();
     ASTModifier newModifier = previousModifier.isPresent()
         ? previousModifier.get()
         : CD4AnalysisNodeFactory
@@ -75,7 +58,7 @@ final class VisibilityManipulation implements UnaryOperator<ASTCDCompilationUnit
    * Sets the visibility of every class to public.
    */
   private void setClassVisibilityPublic(ASTCDClass cdClass) {
-    Optional<ASTModifier> previousModifier = cdClass.getModifier();
+    Optional<ASTModifier> previousModifier = cdClass.getModifierOpt();
     ASTModifier newModifier = previousModifier.isPresent()
         ? previousModifier.get()
         : CD4AnalysisNodeFactory
@@ -88,7 +71,7 @@ final class VisibilityManipulation implements UnaryOperator<ASTCDCompilationUnit
    * Sets the visibility of every interface to public.
    */
   private void setInterfaceVisibilityPublic(ASTCDInterface cdInterface) {
-    Optional<ASTModifier> previousModifier = cdInterface.getModifier();
+    Optional<ASTModifier> previousModifier = cdInterface.getModifierOpt();
     ASTModifier newModifier = previousModifier.isPresent()
         ? previousModifier.get()
         : CD4AnalysisNodeFactory

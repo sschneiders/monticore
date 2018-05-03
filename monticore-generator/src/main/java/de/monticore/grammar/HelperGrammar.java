@@ -1,25 +1,11 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.grammar;
 
 import com.google.common.collect.Lists;
+
+import de.monticore.codegen.GeneratorHelper;
+import de.monticore.codegen.mc2cd.TransformationHelper;
 import de.monticore.grammar.grammar._ast.*;
 import de.monticore.grammar.prettyprint.Grammar_WithConceptsPrettyPrinter;
 import de.se_rwth.commons.JavaNamesHelper;
@@ -79,8 +65,8 @@ public class HelperGrammar {
   public static String getUsuageName(ASTNonTerminal a) {
     
     String name;
-    if (a.getUsageName().isPresent()) {
-      name = a.getUsageName().get();
+    if (a.isPresentUsageName()) {
+      name = a.getUsageName();
     }
     else {
       // Use Nonterminal name as attribute name starting with lower case
@@ -90,6 +76,24 @@ public class HelperGrammar {
     return name;
   }
   
+  public static String getListName(ASTNonTerminal a) {
+    
+    String name;
+    if (a.isPresentUsageName()) {
+      name = a.getUsageName();
+      if (name.endsWith(TransformationHelper.LIST_SUFFIX)) {
+        name = name.substring(0, name.length()-TransformationHelper.LIST_SUFFIX.length())
+            + GeneratorHelper.GET_SUFFIX_LIST;
+      }
+    }
+    else {
+      // Use Nonterminal name as attribute name starting with lower case
+      // latter
+      name = a.getName() + GeneratorHelper.GET_SUFFIX_LIST;
+    }
+    return name;
+  }
+
   public static boolean isIterated(ASTNonTerminal a) {
     return ((a.getIteration() == ASTConstantsGrammar.PLUS)
         || (a.getIteration() == ASTConstantsGrammar.STAR));
@@ -110,13 +114,13 @@ public class HelperGrammar {
     
     String name = a.getName();
     // simple String
-    if (!a.getVariable().isPresent()) {
+    if (!a.isPresentVariable()) {
       return createStringConvertFunction(name);
     }
     
     // default functions
-    else if (a.getType() == null || a.getType().isEmpty()) {
-      String variable = a.getVariable().get();
+    else if (a.getTypeList() == null || a.getTypeList().isEmpty()) {
+      String variable = a.getVariable();
       
       if ("int".equals(variable)) {
         String function = "private int convert%name%(Token t) {\n"
@@ -183,12 +187,12 @@ public class HelperGrammar {
     }
     // specific function
     else {
-      if (a.getBlock().isPresent()) {
+      if (a.isPresentBlock()) {
         StringBuilder buffer = new StringBuilder();
-        buffer.append(prettyPrinter.prettyprint(a.getBlock().get()));
+        buffer.append(prettyPrinter.prettyprint(a.getBlock()));
         String createConvertFunction = createConvertFunction(name,
-            "private " + Names.getQualifiedName(a.getType()) + " convert" + name
-                + "(Token " + a.getVariable().get() + ")" + " {\n" + buffer.toString() + "}\n");
+            "private " + Names.getQualifiedName(a.getTypeList()) + " convert" + name
+                + "(Token " + a.getVariable() + ")" + " {\n" + buffer.toString() + "}\n");
         return createConvertFunction;
       }
     }
@@ -213,16 +217,16 @@ public class HelperGrammar {
   
   public static String createConvertType(ASTLexProd a) {
     
-    if (!a.getVariable().isPresent()) {
+    if (!a.isPresentVariable()) {
       return "String";
     }
-    String variable = a.getVariable().get();
+    String variable = a.getVariable();
     
     String name = a.getName();
     // simple String
     
     // default functions
-    if (a.getType() == null || a.getType().isEmpty()) {
+    if (a.getTypeList() == null || a.getTypeList().isEmpty()) {
       
       if ("int".equals(variable) || "boolean".equals(variable) || "char".equals(variable)
           || "float".equals(variable) || "double".equals(variable)
@@ -242,7 +246,7 @@ public class HelperGrammar {
     // specific function
     else {
       
-      return Names.getQualifiedName(a.getType());
+      return Names.getQualifiedName(a.getTypeList());
     }
   }
   
@@ -269,10 +273,10 @@ public class HelperGrammar {
     
     StringBuilder b = new StringBuilder();
     
-    b.append(Names.getQualifiedName(genericType.getNames()));
+    b.append(Names.getQualifiedName(genericType.getNameList()));
     
     boolean first = true;
-    for (ASTGenericType t : genericType.getGenericTypes()) {
+    for (ASTGenericType t : genericType.getGenericTypeList()) {
       if (first) {
         b.append("<");
         first = false;
@@ -298,7 +302,7 @@ public class HelperGrammar {
   }
   
   public static boolean hasValidName(ASTConstant astConstant) {
-    if (astConstant.getHumanName().isPresent()) {
+    if (astConstant.isPresentHumanName()) {
       return true;
     }
     String constName = astConstant.getName();
@@ -331,8 +335,8 @@ public class HelperGrammar {
   public static String getAttributeNameForConstant(ASTConstant astConstant) {
     String name;
     
-    if (astConstant.getHumanName().isPresent()) {
-      name = astConstant.getHumanName().get();
+    if (astConstant.isPresentHumanName()) {
+      name = astConstant.getHumanName();
     }
     else {
       String constName = astConstant.getName();

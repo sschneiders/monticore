@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.common;
 
@@ -31,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.monticore.common.common._ast.ASTStereotype;
-import de.monticore.common.common._parser.CommonParser;
+import de.monticore.common.testcommon._parser.TestCommonParser;
 import de.se_rwth.commons.logging.Log;
 
 /**
@@ -45,7 +28,7 @@ public class StereotypeTest {
   }
   
   private ASTStereotype parseStereotype(String s) throws IOException {
-    CommonParser parser = new CommonParser();
+    TestCommonParser parser = new TestCommonParser();
     Optional<ASTStereotype> ast = parser.parseStereotype(new StringReader(s));
     assertFalse(parser.hasErrors());
     assertTrue(ast.isPresent());
@@ -66,7 +49,7 @@ public class StereotypeTest {
   @Test
   public void parseNegativeStereotype() {
     try {
-      CommonParser parser = new CommonParser();
+      TestCommonParser parser = new TestCommonParser();
       parser.parseStereotype(new StringReader("<<s1> >"));
       assertTrue(parser.hasErrors());
     }
@@ -79,7 +62,7 @@ public class StereotypeTest {
   public void parseGenericType() {
     // Check if handling of ">>" in generic tpyes is correct
     try {
-      CommonParser parser = new CommonParser();
+      TestCommonParser parser = new TestCommonParser();
       parser.parseType(new StringReader("List<List<String>>"));
       assertFalse(parser.hasErrors());
     }

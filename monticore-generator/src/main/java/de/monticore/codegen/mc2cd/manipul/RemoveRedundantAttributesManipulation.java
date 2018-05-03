@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.manipul;
 
@@ -51,10 +34,10 @@ final class RemoveRedundantAttributesManipulation implements UnaryOperator<ASTCD
   @Override
   public ASTCDCompilationUnit apply(ASTCDCompilationUnit cdCompilationUnit) {
     for (ASTCDClass cdClass : ASTNodes.getSuccessors(cdCompilationUnit, ASTCDClass.class)) {
-      removeRedundantAttributes(cdClass.getCDAttributes());
+      removeRedundantAttributes(cdClass.getCDAttributeList());
     }
     for (ASTCDInterface cdClass : ASTNodes.getSuccessors(cdCompilationUnit, ASTCDInterface.class)) {
-      removeRedundantAttributes(cdClass.getCDAttributes());
+      removeRedundantAttributes(cdClass.getCDAttributeList());
     }
     return cdCompilationUnit;
   }
@@ -117,13 +100,13 @@ final class RemoveRedundantAttributesManipulation implements UnaryOperator<ASTCD
     ASTSimpleReferenceType outerType = (ASTSimpleReferenceType) cdAttribute
         .getType();
 
-    if (!outerType.getTypeArguments().isPresent() || outerType
-        .getTypeArguments().get().getTypeArguments().isEmpty()) {
+    if (!outerType.isPresentTypeArguments() || outerType
+        .getTypeArguments().getTypeArgumentList().isEmpty()) {
       return Optional.empty();
     }
     // the 'String' in 'List<String>'
     ASTSimpleReferenceType typeArgument = (ASTSimpleReferenceType) outerType
-        .getTypeArguments().get().getTypeArguments().get(0);
+        .getTypeArguments().getTypeArgumentList().get(0);
 
     return Optional.of(typeToString(typeArgument));
   }

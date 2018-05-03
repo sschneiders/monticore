@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.common.prettyprint;
 
@@ -52,7 +35,7 @@ public class CommonPrettyPrinterConcreteVisitor extends TypesPrettyPrinterConcre
   public void handle(ASTStereotype a) {
     getPrinter().print("<<");
     String sep = "";
-    for (ASTStereoValue value: a.getValues()) {
+    for (ASTStereoValue value: a.getValueList()) {
       getPrinter().print(sep);
       value.accept(getRealThis());
       sep = ", ";
@@ -68,8 +51,8 @@ public class CommonPrettyPrinterConcreteVisitor extends TypesPrettyPrinterConcre
   @Override
   public void handle(ASTStereoValue a) {
     getPrinter().print(a.getName());
-    if (a.getSource().isPresent()) {
-      getPrinter().print(" = " + a.getSource().get());
+    if (a.isPresentSource()) {
+      getPrinter().print(" = " + a.getSource());
     }
   }
   
@@ -128,8 +111,8 @@ public class CommonPrettyPrinterConcreteVisitor extends TypesPrettyPrinterConcre
   @Override
   public void handle(ASTModifier a) {
     // print stereotypes
-    if (a.getStereotype().isPresent()) {
-      a.getStereotype().get().accept(getRealThis());
+    if (a.isPresentStereotype()) {
+      a.getStereotype().accept(getRealThis());
       getPrinter().print(" ");
     }
     if (a.isPublic()) {

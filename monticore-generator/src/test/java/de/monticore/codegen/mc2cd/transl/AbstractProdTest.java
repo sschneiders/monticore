@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -67,14 +50,14 @@ public class AbstractProdTest {
 
   @Test
   public void testAbstract() {
-    assertTrue(astA.getModifier().isPresent());
-    assertTrue(astA.getModifier().get().isAbstract());
-    assertTrue(astB.getModifier().isPresent());
-    assertTrue(astB.getModifier().get().isAbstract());
-    assertTrue(astC.getModifier().isPresent());
-    assertTrue(astC.getModifier().get().isAbstract());
-    assertTrue(astD.getModifier().isPresent());
-    assertTrue(astD.getModifier().get().isAbstract());
+    assertTrue(astA.isPresentModifier());
+    assertTrue(astA.getModifier().isAbstract());
+    assertTrue(astB.isPresentModifier());
+    assertTrue(astB.getModifier().isAbstract());
+    assertTrue(astC.isPresentModifier());
+    assertTrue(astC.getModifier().isAbstract());
+    assertTrue(astD.isPresentModifier());
+    assertTrue(astD.getModifier().isAbstract());
   }
 
   /**
@@ -83,7 +66,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testExtends() {
-    java.util.Optional<ASTReferenceType> superClasses = astA.getSuperclass();
+    java.util.Optional<ASTReferenceType> superClasses = astA.getSuperclassOpt();
     assertTrue(superClasses.isPresent());
     String name = typeToString(superClasses.get());
     assertEquals("mc2cdtransformation.AbstractProd.ASTextendedProd", name);
@@ -95,7 +78,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testImplements() {
-    List<ASTReferenceType> superInterfaces = astB.getInterfaces();
+    List<ASTReferenceType> superInterfaces = astB.getInterfaceList();
     assertEquals(1, superInterfaces.size());
     String name = typeToString(superInterfaces.get(0));
     assertEquals("mc2cdtransformation.AbstractProd.ASTimplementedProd", name);
@@ -107,7 +90,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testAstextends() {
-    java.util.Optional<ASTReferenceType> superClasses = astC.getSuperclass();
+    java.util.Optional<ASTReferenceType> superClasses = astC.getSuperclassOpt();
     assertTrue(superClasses.isPresent());
     String name = typeToString(superClasses.get());
     assertEquals("AstExtendedType", name);
@@ -119,7 +102,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testAstimplements() {
-    List<ASTReferenceType> superInterfaces = astD.getInterfaces();
+    List<ASTReferenceType> superInterfaces = astD.getInterfaceList();
     assertEquals(1, superInterfaces.size());
     String name = typeToString(superInterfaces.get(0));
     assertEquals("AstImplementedType", name);
@@ -131,7 +114,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testAstextendsQualified() {
-    java.util.Optional<ASTReferenceType> superClasses = astE.getSuperclass();
+    java.util.Optional<ASTReferenceType> superClasses = astE.getSuperclassOpt();
     assertTrue(superClasses.isPresent());
     String name = typeToString(superClasses.get());
     assertEquals("java.util.Observable", name);
@@ -143,7 +126,7 @@ public class AbstractProdTest {
    */
   @Test
   public void testAstimplementsQualified() {
-    List<ASTReferenceType> superInterfaces = astF.getInterfaces();
+    List<ASTReferenceType> superInterfaces = astF.getInterfaceList();
     assertEquals(1, superInterfaces.size());
     String name = typeToString(superInterfaces.get(0));
     assertEquals("java.io.Serializable", name);

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.cocos;
 
@@ -54,7 +37,8 @@ public class CoCoGenerator {
   public static void generate(GlobalExtensionManagement glex,
       GlobalScope globalScope,
       ASTCDCompilationUnit astClassDiagram, File outputDirectory) {
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory);
     CoCoGeneratorHelper coCoHelper = new CoCoGeneratorHelper(astClassDiagram, globalScope);
     glex.setGlobalValue("coCoHelper", coCoHelper);
     setup.setGlex(glex);
@@ -72,7 +56,7 @@ public class CoCoGenerator {
     // code
     
     // concrete coco interfaces for AST classes
-    for (ASTCDClass clazz : astClassDiagram.getCDDefinition().getCDClasses()) {
+    for (ASTCDClass clazz : astClassDiagram.getCDDefinition().getCDClassList()) {
       if (coCoHelper.isAstClass(clazz)) {
         final Path cocoFilePath = Paths.get(Names.getPathFromPackage(cocosPackage),
             diagramName + CoCoGeneratorHelper.getPlainName(clazz) + "CoCo.java");
@@ -80,7 +64,7 @@ public class CoCoGenerator {
       }
     }
     // concrete coco interfaces for AST interfaces classes
-    for (ASTCDInterface interf : astClassDiagram.getCDDefinition().getCDInterfaces()) {
+    for (ASTCDInterface interf : astClassDiagram.getCDDefinition().getCDInterfaceList()) {
       final Path cocoFilePath = Paths.get(Names.getPathFromPackage(cocosPackage),
           diagramName + CoCoGeneratorHelper.getPlainName(interf) + "CoCo.java");
       generator.generate("cocos.CoCoInterface", cocoFilePath, interf, astPackage);

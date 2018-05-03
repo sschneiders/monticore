@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.generating.templateengine.freemarker;
 
@@ -60,15 +43,10 @@ public class FreeMarkerTemplateEngine {
    */
   public Template loadTemplate(String qualifiedTemplateName) {
     isNullOrEmpty(qualifiedTemplateName);
-    
-    try {
-      // use empty logger to suppress default free marker log behaviour
-      Logger.selectLoggerLibrary(Logger.LIBRARY_NONE);
-    }
-    catch (ClassNotFoundException e1) {
-      // TODO use default logger instead
-    }
-
+      
+    // use empty logger to suppress default free marker log behaviour
+    System.setProperty(Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY, Logger.LIBRARY_NAME_NONE);
+  
     Template result;
     try {
       result = configuration.getTemplate(qualifiedTemplateName);

@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.types;
 
@@ -50,8 +33,8 @@ public class TypesHelper {
   
   public static ASTTypeArgument getReferenceTypeFromOptional(ASTType type) {
     Preconditions.checkArgument(isOptional(type));
-    return ((ASTSimpleReferenceType) type).getTypeArguments().get()
-        .getTypeArguments().get(0);
+    return ((ASTSimpleReferenceType) type).getTypeArguments()
+        .getTypeArgumentList().get(0);
   }
   
   public static ASTSimpleReferenceType getSimpleReferenceTypeFromOptional(ASTType type) {
@@ -59,8 +42,8 @@ public class TypesHelper {
     ASTTypeArgument refType = getReferenceTypeFromOptional(type);
     // TODO: improve
     if (refType instanceof ASTWildcardType
-        && ((ASTWildcardType) refType).getUpperBound().isPresent()) {
-      refType = ((ASTWildcardType) refType).getUpperBound().get();
+        && ((ASTWildcardType) refType).isPresentUpperBound()) {
+      refType = ((ASTWildcardType) refType).getUpperBound();
     }
     // TODO: improve
     Preconditions.checkState(refType instanceof ASTSimpleReferenceType);
@@ -70,28 +53,28 @@ public class TypesHelper {
   public static String getReferenceNameFromOptional(ASTType type) {
     Preconditions.checkArgument(isOptional(type));
     // TODO: improve
-    ASTTypeArgument reference = ((ASTSimpleReferenceType) type).getTypeArguments().get()
-        .getTypeArguments().get(0);
+    ASTTypeArgument reference = ((ASTSimpleReferenceType) type).getTypeArguments()
+        .getTypeArgumentList().get(0);
     if (reference instanceof ASTWildcardType
-        && ((ASTWildcardType) reference).getUpperBound().isPresent()) {
-      reference = ((ASTWildcardType) reference).getUpperBound().get();
+        && ((ASTWildcardType) reference).isPresentUpperBound()) {
+      reference = ((ASTWildcardType) reference).getUpperBound();
     }
     Preconditions.checkArgument(reference instanceof ASTSimpleReferenceType);
-    List<String> names = ((ASTSimpleReferenceType) reference).getNames();
+    List<String> names = ((ASTSimpleReferenceType) reference).getNameList();
     return names.isEmpty() ? "" : names.get(names.size() - 1);
   }
   
   public static String getQualifiedReferenceNameFromOptional(ASTType type) {
     Preconditions.checkArgument(isOptional(type));
     // TODO: improve
-    ASTTypeArgument reference = ((ASTSimpleReferenceType) type).getTypeArguments().get()
-        .getTypeArguments().get(0);
+    ASTTypeArgument reference = ((ASTSimpleReferenceType) type).getTypeArguments()
+        .getTypeArgumentList().get(0);
     if (reference instanceof ASTWildcardType
-        && ((ASTWildcardType) reference).getUpperBound().isPresent()) {
-      reference = ((ASTWildcardType) reference).getUpperBound().get();
+        && ((ASTWildcardType) reference).isPresentUpperBound()) {
+      reference = ((ASTWildcardType) reference).getUpperBound();
     }
     Preconditions.checkArgument(reference instanceof ASTSimpleReferenceType);
-    List<String> names = ((ASTSimpleReferenceType) reference).getNames();
+    List<String> names = ((ASTSimpleReferenceType) reference).getNameList();
     return names.isEmpty() ? "" : Names.getQualifiedName(names);
   }
   
@@ -100,11 +83,11 @@ public class TypesHelper {
       return false;
     }
     ASTSimpleReferenceType simpleRefType = (ASTSimpleReferenceType) type;
-    if (!Names.getQualifiedName(simpleRefType.getNames()).equals(
+    if (!Names.getQualifiedName(simpleRefType.getNameList()).equals(
         simpleRefTypeName)
         ||
-        !simpleRefType.getTypeArguments().isPresent() ||
-        simpleRefType.getTypeArguments().get().getTypeArguments().size() != 1) {
+        !simpleRefType.isPresentTypeArguments() ||
+        simpleRefType.getTypeArguments().getTypeArgumentList().size() != 1) {
       return false;
     }
     return true;
@@ -121,7 +104,7 @@ public class TypesHelper {
     }
     ASTSimpleReferenceType simpleRefType = (ASTSimpleReferenceType) type;
     ASTTypeArgument typeArgument = simpleRefType
-        .getTypeArguments().get().getTypeArguments().get(0);
+        .getTypeArguments().getTypeArgumentList().get(0);
     if (!(typeArgument instanceof ASTSimpleReferenceType)) {
       return Optional.empty();
     }
@@ -142,7 +125,7 @@ public class TypesHelper {
   
   public static String getSimpleName(ASTSimpleReferenceType simpleType) {
     String name = "";
-    List<String> qualifiedName = simpleType.getNames();
+    List<String> qualifiedName = simpleType.getNameList();
     if (qualifiedName != null && !qualifiedName.isEmpty()) {
       name = qualifiedName.get(qualifiedName.size() - 1);
     }

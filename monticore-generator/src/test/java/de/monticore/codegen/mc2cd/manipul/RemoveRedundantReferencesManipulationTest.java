@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.manipul;
 
@@ -37,12 +20,12 @@ public class RemoveRedundantReferencesManipulationTest {
         TransformationHelper.createSimpleReference("ASTReference"), "name",
         TransformationHelper.createSimpleReference("java.util.List", "ASTReference"));
     
-    assertEquals(2, cdClass.getCDAttributes().size());
+    assertEquals(2, cdClass.getCDAttributeList().size());
     
     new RemoveRedundantAttributesManipulation()
-        .removeRedundantAttributes(cdClass.getCDAttributes());
+        .removeRedundantAttributes(cdClass.getCDAttributeList());
     
-    assertEquals(1, cdClass.getCDAttributes().size());
+    assertEquals(1, cdClass.getCDAttributeList().size());
   }
   
   private ASTCDClass setupCDClass(String firstReferenceName, ASTType firstReferenceType,
@@ -57,8 +40,8 @@ public class RemoveRedundantReferencesManipulationTest {
     listAttribute.setName(secondReferenceName);
     listAttribute.setType(secondReferenceType);
     
-    cdClass.getCDAttributes().add(singleAttribute);
-    cdClass.getCDAttributes().add(listAttribute);
+    cdClass.getCDAttributeList().add(singleAttribute);
+    cdClass.getCDAttributeList().add(listAttribute);
     
     return cdClass;
   }

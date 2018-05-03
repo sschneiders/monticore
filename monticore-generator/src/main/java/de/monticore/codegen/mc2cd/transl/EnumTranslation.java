@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -41,16 +24,16 @@ public class EnumTranslation implements UnaryOperator<Link<ASTMCGrammar, ASTCDCo
       Link<ASTMCGrammar, ASTCDCompilationUnit> rootLink) {
     for (Link<ASTEnumProd, ASTCDEnum> link : rootLink
         .getLinks(ASTEnumProd.class, ASTCDEnum.class)) {
-      for (ASTConstant constant : link.source().getConstants()) {
-        String name = constant.getHumanName().orElse(constant.getName());
+      for (ASTConstant constant : link.source().getConstantList()) {
+        String name = constant.getHumanNameOpt().orElse(constant.getName());
         final String goodName = LexNamer.createGoodName(name);
         ASTCDEnumConstant enumConstant = CD4AnalysisNodeFactory.createASTCDEnumConstant();
         enumConstant.setName(goodName);
-        boolean constantAlreadyExists = link.target().getCDEnumConstants().stream()
+        boolean constantAlreadyExists = link.target().getCDEnumConstantList().stream()
             .filter(existing -> existing.getName().equals(goodName))
             .findAny().isPresent();
         if (!constantAlreadyExists) {
-          link.target().getCDEnumConstants().add(enumConstant);
+          link.target().getCDEnumConstantList().add(enumConstant);
         }
       }
     }

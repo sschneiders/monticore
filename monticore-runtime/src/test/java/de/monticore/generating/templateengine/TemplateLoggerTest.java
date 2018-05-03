@@ -1,40 +1,23 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.generating.templateengine;
-
-import de.monticore.generating.templateengine.freemarker.FreeMarkerConfigurationBuilder;
-import de.monticore.generating.templateengine.freemarker.FreeMarkerTemplateEngine;
-import de.monticore.io.FileReaderWriterMock;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
 
 import static de.monticore.generating.templateengine.TestConstants.TEMPLATE_PACKAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import de.monticore.generating.GeneratorSetup;
+import de.monticore.generating.templateengine.freemarker.FreeMarkerTemplateEngine;
+import de.monticore.io.FileReaderWriterMock;
+
 /**
  * A simple unit test invoking a template which uses the new template logger.
  *
- * @author (last commit) $Author$
  * @since 4.0.1
  */
 public class TemplateLoggerTest {
@@ -44,9 +27,7 @@ public class TemplateLoggerTest {
   private TemplateControllerMock tc;
   
   private GlobalExtensionManagement glex;
-  
-  private FreeMarkerTemplateEngine freeMarkerTemplateEngine;
-  
+    
   private FileReaderWriterMock fileHandler;
   
   /**
@@ -58,21 +39,14 @@ public class TemplateLoggerTest {
   @Before
   public void setup() {
     glex = new GlobalExtensionManagement();
-    
-    freeMarkerTemplateEngine = new FreeMarkerTemplateEngine(
-        new FreeMarkerConfigurationBuilder().build());
-    
+ 
     fileHandler = new FileReaderWriterMock();
-    TemplateControllerConfiguration config = new TemplateControllerConfigurationBuilder()
-        .glex(glex)
-        .freeMarkerTemplateEngine(freeMarkerTemplateEngine)
-        .fileHandler(fileHandler)
-        .classLoader(getClass().getClassLoader())
-        .externalTemplatePaths(new File[] {})
-        .outputDirectory(TARGET_DIR)
-        .tracing(false)
-        .build();
-    
+    GeneratorSetup config = new GeneratorSetup();
+    config.setGlex(glex);
+    config.setFileHandler(fileHandler);
+    config.setOutputDirectory(TARGET_DIR);
+    config.setTracing(false);
+    // .externalTemplatePaths(new File[]{})
     tc = new TemplateControllerMock(config, "");
   }
   
@@ -81,9 +55,9 @@ public class TemplateLoggerTest {
    */
   @Test
   public void demonstrateTemplateLogging() {
-    String result = tc.include(TEMPLATE_PACKAGE + "Log");
+    StringBuilder result = tc.include(TEMPLATE_PACKAGE + "Log");
     assertNotNull(result);
-    assertEquals("A", result.trim());
+    assertEquals("A", result.toString().trim());
   }
   
 }

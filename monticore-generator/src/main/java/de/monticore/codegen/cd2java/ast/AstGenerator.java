@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.cd2java.ast;
 
@@ -38,11 +21,6 @@ import de.monticore.umlcd4a.cd4analysis._ast.ASTCDInterface;
 import de.se_rwth.commons.JavaNamesHelper;
 import de.se_rwth.commons.Names;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public class AstGenerator {
   
   private static final String JAVA_EXTENSION = ".java";
@@ -60,7 +38,8 @@ public class AstGenerator {
   public static void generate(GlobalExtensionManagement glex, GlobalScope globalScope, ASTCDCompilationUnit astClassDiagram,
       File outputDirectory, IterablePath templatePath, boolean emfCompatible) {
     final String diagramName = astClassDiagram.getCDDefinition().getName();
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup();
+    setup.setOutputDirectory(outputDirectory);
     setup.setModelName(diagramName);
     setup.setAdditionalTemplatePaths(templatePath.getPaths().stream().map(Path::toFile).collect(Collectors.toList()));
     AstGeneratorHelper astHelper = GeneratorHelper.createGeneratorHelper(astClassDiagram, globalScope, emfCompatible);
@@ -74,25 +53,32 @@ public class AstGenerator {
     final String visitorPackage = AstGeneratorHelper.getPackageName(astHelper.getPackageName(),
         VisitorGeneratorHelper.getVisitorPackageSuffix());
     
-    for (ASTCDClass clazz : astClassDiagram.getCDDefinition().getCDClasses()) {
+    for (ASTCDClass clazz : astClassDiagram.getCDDefinition().getCDClassList()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
           Names.getSimpleName(clazz.getName()) + JAVA_EXTENSION);
       if (astHelper.isAstClass(clazz)) {
-        generator.generate("ast.AstClass", filePath, clazz, clazz, astHelper.getASTBuilder(clazz));
+        generator.generate("ast.AstClass", filePath, clazz, clazz);
+
+        if(astHelper.getASTBuilder(clazz).isPresent()) {
+          final ASTCDClass astBuilder = astHelper.getASTBuilder(clazz).get();
+          Path builderFilePath = Paths.get(Names.getPathFromPackage(astPackage),
+            Names.getSimpleName(astBuilder.getName()) + JAVA_EXTENSION);
+          generator.generate("ast.AstBuilder", builderFilePath, astBuilder, astBuilder, clazz);
+        }
       }
-      else if (!AstGeneratorHelper.isBuilderClass(clazz)) {
+      else if (!AstGeneratorHelper.isBuilderClass(astClassDiagram.getCDDefinition(), clazz)) {
         generator.generate("ast.Class", filePath, clazz);
       }
     }
     
-    for (ASTCDInterface interf : astClassDiagram.getCDDefinition().getCDInterfaces()) {
+    for (ASTCDInterface interf : astClassDiagram.getCDDefinition().getCDInterfaceList()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
           Names.getSimpleName(interf.getName()) + JAVA_EXTENSION);
       generator.generate("ast.AstInterface", filePath, interf, visitorPackage,
           VisitorGeneratorHelper.getVisitorType(diagramName));
     }
     
-    for (ASTCDEnum enm : astClassDiagram.getCDDefinition().getCDEnums()) {
+    for (ASTCDEnum enm : astClassDiagram.getCDDefinition().getCDEnumList()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
           Names.getSimpleName(enm.getName()) + JAVA_EXTENSION);
       generator.generate("ast.AstEnum", filePath, enm);

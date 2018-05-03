@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.mc2cd.transl;
 
@@ -52,7 +35,7 @@ public class RemoveOverriddenAttributesTranslation implements
           .filter(attributeLink -> isOverridden(attributeLink.source(), classLink))
           .filter(attributeLink -> isNotInherited(attributeLink.target()))
           .map(Link::target)
-          .forEach(classLink.target().getCDAttributes()::remove);
+          .forEach(classLink.target().getCDAttributeList()::remove);
     }
     return rootLink;
   }
@@ -64,13 +47,13 @@ public class RemoveOverriddenAttributesTranslation implements
     attributesInASTLinkingToSameClass.remove(source);
 
     boolean matchByUsageName = usageName.isPresent() && attributesInASTLinkingToSameClass.stream()
-        .map(ASTAttributeInAST::getName)
+        .map(ASTAttributeInAST::getNameOpt)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .anyMatch(usageName.get()::equals);
 
     boolean matchByTypeName = !usageName.isPresent() && attributesInASTLinkingToSameClass.stream()
-        .filter(attributeInAST -> !attributeInAST.getName().isPresent())
+        .filter(attributeInAST -> !attributeInAST.getNameOpt().isPresent())
         .map(ASTAttributeInAST::getGenericType)
         .map(ASTGenericType::getTypeName)
         .anyMatch(getName(source).orElse("")::equals);
@@ -87,15 +70,15 @@ public class RemoveOverriddenAttributesTranslation implements
   }
 
   private boolean isNotInherited(ASTCDAttribute cdAttribute) {
-    Optional<ASTModifier> modifier = cdAttribute.getModifier();
+    Optional<ASTModifier> modifier = cdAttribute.getModifierOpt();
     if (!modifier.isPresent()) {
       return true;
     }
-    Optional<ASTStereotype> stereotype = modifier.get().getStereotype();
+    Optional<ASTStereotype> stereotype = modifier.get().getStereotypeOpt();
     if (!stereotype.isPresent()) {
       return true;
     }
-    return stereotype.get().getValues().stream()
+    return stereotype.get().getValueList().stream()
         .map(ASTStereoValue::getName)
         .noneMatch(MC2CDStereotypes.INHERITED.toString()::equals);
   }

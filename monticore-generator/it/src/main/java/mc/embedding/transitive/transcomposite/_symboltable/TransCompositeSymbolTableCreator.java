@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.embedding.transitive.transcomposite._symboltable;
 
@@ -29,7 +12,7 @@ import de.se_rwth.commons.logging.Log;
 import mc.embedding.composite._symboltable.SimpleCompositeSymbolTableCreator;
 import mc.embedding.embedded._symboltable.EmbeddedSymbolTableCreator;
 import mc.embedding.host._symboltable.HostSymbolTableCreator;
-import mc.embedding.transitive.transcomposite._visitor.CommonTransCompositeDelegatorVisitor;
+import mc.embedding.transitive.transcomposite._visitor.TransCompositeDelegatorVisitor;
 import mc.embedding.transitive.transcomposite._visitor.TransCompositeVisitor;
 import mc.embedding.transitive.transhost._ast.ASTTransStart;
 import mc.embedding.transitive.transhost._symboltable.TransHostSymbolTableCreator;
@@ -39,7 +22,7 @@ public class TransCompositeSymbolTableCreator extends CommonSymbolTableCreator i
   
   private final TransHostSymbolTableCreator hostSymbolTableCreator;
   
-  public final CommonTransCompositeDelegatorVisitor visitor;
+  public final TransCompositeDelegatorVisitor visitor;
   
   private TransCompositeVisitor realThis = this;
   
@@ -49,15 +32,15 @@ public class TransCompositeSymbolTableCreator extends CommonSymbolTableCreator i
     
     this.hostSymbolTableCreator = new TransHostSymbolTableCreator(resolverConfig, scopeStack);
     
-    visitor = new CommonTransCompositeDelegatorVisitor();
+    visitor = new TransCompositeDelegatorVisitor();
     
-    visitor.set_mc_embedding_host__visitor_HostVisitor( new HostSymbolTableCreator(resolverConfig, scopeStack));
-    visitor.set_mc_embedding_embedded__visitor_EmbeddedVisitor(
+    visitor.setHostVisitor( new HostSymbolTableCreator(resolverConfig, scopeStack));
+    visitor.setEmbeddedVisitor(
         new EmbeddedSymbolTableCreator(resolverConfig, scopeStack));
-    visitor.set_mc_embedding_transitive_transcomposite__visitor_TransCompositeVisitor(this);
+    visitor.setTransCompositeVisitor(this);
     visitor
-        .set_mc_embedding_transitive_transhost__visitor_TransHostVisitor(this.hostSymbolTableCreator);
-    visitor.set_mc_embedding_composite__visitor_CompositeVisitor(new SimpleCompositeSymbolTableCreator(resolverConfig, scopeStack));
+        .setTransHostVisitor(this.hostSymbolTableCreator);
+    visitor.setCompositeVisitor(new SimpleCompositeSymbolTableCreator(resolverConfig, scopeStack));
   }
   
   public TransCompositeSymbolTableCreator(final ResolvingConfiguration resolverConfig,
@@ -66,15 +49,15 @@ public class TransCompositeSymbolTableCreator extends CommonSymbolTableCreator i
     
     this.hostSymbolTableCreator = new TransHostSymbolTableCreator(resolverConfig, scopeStack);
     
-    visitor = new CommonTransCompositeDelegatorVisitor();
+    visitor = new TransCompositeDelegatorVisitor();
     
-    visitor.set_mc_embedding_host__visitor_HostVisitor( new HostSymbolTableCreator(resolverConfig, scopeStack));
-    visitor.set_mc_embedding_embedded__visitor_EmbeddedVisitor(
+    visitor.setHostVisitor( new HostSymbolTableCreator(resolverConfig, scopeStack));
+    visitor.setEmbeddedVisitor(
         new EmbeddedSymbolTableCreator(resolverConfig, scopeStack));
-    visitor.set_mc_embedding_transitive_transcomposite__visitor_TransCompositeVisitor(this);
+    visitor.setTransCompositeVisitor(this);
     visitor
-        .set_mc_embedding_transitive_transhost__visitor_TransHostVisitor(this.hostSymbolTableCreator);
-    visitor.set_mc_embedding_composite__visitor_CompositeVisitor(new SimpleCompositeSymbolTableCreator(resolverConfig, scopeStack));
+        .setTransHostVisitor(this.hostSymbolTableCreator);
+    visitor.setCompositeVisitor(new SimpleCompositeSymbolTableCreator(resolverConfig, scopeStack));
    
   }
   

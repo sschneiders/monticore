@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package mc.feature.comments;
 
@@ -48,10 +31,10 @@ public class CommentsTest extends GeneratorIntegrationsTest {
     assertTrue(optAst.isPresent());
     ASTStart ast = optAst.get();
     assertEquals(false, p.hasErrors());
-    assertEquals(1, ast.getAs().size());
-    assertEquals(1, ast.getBs().size());
-    assertEquals(1, ((ASTNode) ast.getAs().get(0)).get_PreComments().size());
-    assertEquals(1, ((ASTNode) ast.getAs().get(0)).get_PostComments().size());
-    assertEquals(0, ((ASTNode) ast.getBs().get(0)).get_PreComments().size());
+    assertEquals(1, ast.getAList().size());
+    assertEquals(1, ast.getBList().size());
+    assertEquals(1, ((ASTNode) ast.getAList().get(0)).get_PreComments().size());
+    assertEquals(1, ((ASTNode) ast.getAList().get(0)).get_PostComments().size());
+    assertEquals(0, ((ASTNode) ast.getBList().get(0)).get_PreComments().size());
   }
 }

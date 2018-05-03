@@ -1,21 +1,4 @@
-/*
- * ******************************************************************************
- * MontiCore Language Workbench, www.monticore.de
- * Copyright (c) 2017, MontiCore, All rights reserved.
- *
- * This project is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3.0 of the License, or (at your option) any later version.
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * ******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 
 package de.monticore.codegen.parser;
 
@@ -38,18 +21,13 @@ import de.monticore.grammar.grammar._ast.ASTSemanticpredicateOrAction;
 import de.monticore.grammar.grammar_withconcepts._parser.Grammar_WithConceptsParser;
 import de.monticore.grammar.transformation.GrammarTransformer;
 import de.se_rwth.commons.logging.Log;
-import de.se_rwth.commons.logging.Slf4jLog;
+import de.se_rwth.commons.logging.LogStub;
 
-/**
- * TODO: Write me!
- *
- * @author (last commit) $Author$
- */
 public class MCGrammarParserTest {
   
   @BeforeClass
   public static void setup() {
-    Slf4jLog.init();
+    LogStub.init();
     Log.enableFailQuick(false);
   }
 
@@ -63,9 +41,9 @@ public class MCGrammarParserTest {
     assertTrue(result.isPresent());
     ASTMCGrammar grammar = result.get();
     assertEquals("Statechart", grammar.getName());
-    assertEquals(7, grammar.getClassProds().size());
-    assertEquals(3, grammar.getExternalProds().size());
-    assertEquals(1, grammar.getInterfaceProds().size());
+    assertEquals(7, grammar.getClassProdList().size());
+    assertEquals(3, grammar.getExternalProdList().size());
+    assertEquals(1, grammar.getInterfaceProdList().size());
     GrammarTransformer.transform(grammar);
   }
   
@@ -73,13 +51,13 @@ public class MCGrammarParserTest {
   public void testASTRule() throws IOException {
     String str;
     
-    str = "ast MCGrammar = GrammarOption max=1 ;";
+    str = "astrule MCGrammar = GrammarOption max=1 ;";
     Grammar_WithConceptsParser parser = new Grammar_WithConceptsParser();
     Optional<ASTASTRule> result = parser.parseASTRule(new StringReader(str));
     assertFalse(parser.hasErrors());
     assertTrue(result.isPresent());
     
-    str = " ast State = method public String getName(){ return \"\";};";
+    str = " astrule State = method public String getName(){ return \"\";};";
     result = parser.parseASTRule(new StringReader(str));
     assertFalse(parser.hasErrors());
     assertTrue(result.isPresent());
@@ -186,15 +164,15 @@ public class MCGrammarParserTest {
     assertTrue(result.isPresent());
 
     ASTMCGrammar grammar = result.get();
-    assertEquals(3, grammar.getClassProds().size());
+    assertEquals(3, grammar.getClassProdList().size());
 
-    ASTClassProd transition =  grammar.getClassProds().get(2);
-    ASTNonTerminal fromState = (ASTNonTerminal) transition.getAlts().get(0).getComponents().get(0);
-    assertTrue(fromState.getReferencedSymbol().isPresent());
-    assertEquals("State", fromState.getReferencedSymbol().get());
+    ASTClassProd transition =  grammar.getClassProdList().get(2);
+    ASTNonTerminal fromState = (ASTNonTerminal) transition.getAltList().get(0).getComponentList().get(0);
+    assertTrue(fromState.isPresentReferencedSymbol());
+    assertEquals("State", fromState.getReferencedSymbol());
 
-    ASTNonTerminal toState = (ASTNonTerminal) transition.getAlts().get(0).getComponents().get(0);
-    assertTrue(toState.getReferencedSymbol().isPresent());
-    assertEquals("State", toState.getReferencedSymbol().get());
+    ASTNonTerminal toState = (ASTNonTerminal) transition.getAltList().get(0).getComponentList().get(0);
+    assertTrue(toState.isPresentReferencedSymbol());
+    assertEquals("State", toState.getReferencedSymbol());
   }
 }
